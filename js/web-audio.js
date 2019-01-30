@@ -221,6 +221,9 @@ function dumpToVisualList() {
 
         // add unique type class
         newA.addClass(CSSIdentifyPrefix + "-" + playlistData["loaded"][i][2])
+        newA.addClass("list-group-item");
+        newA.addClass("list-group-item-action");
+        newA.addClass("list-group-item-dark");
 
         // add onclick function
         newA.click(itemClick);
