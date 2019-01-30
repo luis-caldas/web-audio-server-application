@@ -1,3 +1,25 @@
+@font-face {
+    font-family: KellySlab;
+    src: url("../fonts/KellySlab-Regular.ttf");
+}
+
+body {
+    font-family: KellySlab;
+    color: #D9D9D9;
+    background-color: #101010;
+}
+
 audio#main-audio {
     display: none;
+}
+
+.btn-mine {
+    text-align: left;
+    background-color: #1A1A1A;
+    color: #D9D9D9;
+}
+
+.btn-mine:hover {
+    background-color: #E0E0E0;
+    color: #0A0A0A !important;
 }

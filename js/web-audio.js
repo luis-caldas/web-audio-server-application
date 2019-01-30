@@ -30,6 +30,8 @@ const returnButtonTag = "a#return-button";
 
 const tagClasses = "simple-tag";
 
+const possibleFileTypes = ["dir", "audio", "image", "misc"];
+
 // default initial path
 const initialPath = "/";
 
@@ -108,7 +110,7 @@ function retrieveContentsFolder(folderPath) {
             console.log(playlistData["pathStack"]);
 
             // load into global memory the loaded data
-            playlistData["loaded"] = receivedJSON["files"];
+            playlistData["loaded"] = receivedJSON["files"].sort(humanTypeSensitiveSorting);
 
             // dump to the page
             dumpToVisualList();
@@ -133,16 +135,16 @@ function itemClick () {
 
     // dependent in which type of file use a different function
     switch (itemNow[2]) {
-        case "dir":
+        case possibleFileTypes[0]:
             dirClick(itemNow);
             break;
-        case "audio":
+        case possibleFileTypes[1]:
             musClick(itemNow);
             break;
-        case "image":
+        case possibleFileTypes[2]:
             imgClick(itemNow);
             break;
-        case "misc":
+        case possibleFileTypes[3]:
             mscClick(itemNow);
             break;
         default:
@@ -195,6 +197,58 @@ function returnButton() {
  * Sorting *
  ***********/
 
+function sortAlphaNum(inA, inB) {
+
+    let sortingReAlpha = /[^a-zA-Z]/g;
+    let sortingReNum = /[^0-9]/g;
+
+    // parse the item to int
+    let intA = parseInt(inA, 10);
+    let intB = parseInt(inB, 10);
+
+    if (isNaN(intA) && isNaN(intB)) {
+
+        let alphaA = inA.replace(sortingReAlpha, "");
+        let alphaB = inB.replace(sortingReAlpha, "");
+
+        if (alphaA === alphaB) {
+            let numA = parseInt(inA.replace(sortingReNum, ""), 10);
+            let numB = parseInt(inB.replace(sortingReNum, ""), 10);
+            return numA === numB ? 0 : numA > numB ? 1 : -1;
+        } else
+            return alphaA > alphaB ? 1 : -1;
+    } else
+        if(isNaN(intA)) return 1;
+    else
+        if(isNaN(intB)) return -1;
+    else
+        return intA > intB ? 1 : -1;
+
+};
+
+function humanTypeSensitiveSorting(inA, inB) {
+
+    // separating into easier vars
+    let fileNameA = inA[0];
+    let fileNameB = inB[0];
+
+    let fileExtensionA = inA[2];
+    let fileExtensionB = inB[2];
+
+    if (fileNameA == fileNameB) return 0;
+
+    // weigh the types
+    let wA = possibleFileTypes.indexOf(fileExtensionA);
+    let wB = possibleFileTypes.indexOf(fileExtensionB);
+
+    // if the extensions are equal tun the alpha num sorting
+    if (wA == wB) return sortAlphaNum(fileNameA, fileNameB);
+
+    // sort the weights
+    return wA < wB ? -1 : 1;
+
+};
+
 /**********
  * Visual *
  **********/
@@ -221,18 +275,14 @@ function dumpToVisualList() {
 
         // add unique type class
         newA.addClass(CSSIdentifyPrefix + "-" + playlistData["loaded"][i][2])
-        newA.addClass("list-group-item");
-        newA.addClass("list-group-item-action");
-        newA.addClass("list-group-item-dark");
+        newA.addClass("btn");
+        newA.addClass("btn-mine");
 
         // add onclick function
         newA.click(itemClick);
 
-        // add to the bootstrap class
-        let bootstrapParagraph = $("<p></p>").append(newA);
-
         // append to the page
-        $(mainListTag).append(bootstrapParagraph);
+        $(mainListTag).append(newA);
         $(mainListTag).fadeIn(fadeIndervals.quick);
 
     }
