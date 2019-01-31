@@ -63,21 +63,27 @@ audio#main-audio {
     animation: my-marquee-keyframes;
     animation-iteration-count: infinite;
     animation-timing-function: ease-out;
-    animation-duration: 7s;
+    animation-duration: 10s;
 }
 
 @keyframes my-marquee-keyframes {
     0%   {
         transform: translateX(0%);
     }
-    35%  {
+    40%  {
         transform: translateX(0%);
     }
-    90%  {
+    80%  {
         transform: translateX(calc(100vw - 100% - 30px - 4rem));
     }
-    100% {
+    90% {
         transform: translateX(calc(100vw - 100% - 30px - 4rem));
+    }
+    95% {
+        transform: translateX(0%));
+    }
+    100% {
+        transform: translateX(0%));
     }
 }
 
@@ -106,14 +112,20 @@ audio#main-audio {
         0%   {
             transform: translateX(0%);
         }
-        25%  {
+        40%  {
             transform: translateX(0%);
         }
-        90%  {
+        80%  {
             transform: translateX(calc(100vw - 100% - 30px - 2rem));
         }
-        100% {
+        90% {
             transform: translateX(calc(100vw - 100% - 30px - 2rem));
+        }
+        95% {
+            transform: translateX(0%));
+        }
+        100% {
+            transform: translateX(0%));
         }
     }
 
