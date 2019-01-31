@@ -276,6 +276,7 @@ function dumpToVisualList() {
         // add unique type class
         newA.addClass("btn");
         newA.addClass("btn-mine");
+        newA.addClass("btn-responsive-m");
 
         // add onclick function
         newA.click(itemClick);
