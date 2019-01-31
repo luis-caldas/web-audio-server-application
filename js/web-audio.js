@@ -35,6 +35,11 @@ const firstTitle = "Web Audio";
 
 const possibleFileTypes = ["dir", "audio", "image", "misc"];
 
+const iconFontRelation = {
+    "arrow-alt-left": "\uf060",
+    "arrow-alt-right": "\uf061"
+};
+
 // default initial path
 const initialPath = "/";
 
@@ -162,6 +167,7 @@ function dirClick(itemClicked) {
 };
 
 function musClick(itemClicked) {
+    $("title").html(itemClicked[0]);
     $(mainAudioTag).attr("src", buildFullUrl(myServer, "file", { path: itemClicked[1] }));
     $(mainAudioTag)[0].play();
 };
@@ -267,6 +273,9 @@ function dumpToVisualList() {
 
         // create a new 'a' tag
         let newA = $("<a></a>");
+
+        // text part inside the link
+        let textLink = $("<div></div>");
 
         // populate the tag with the new informations
         newA.text(playlistData["loaded"][i][0]);
