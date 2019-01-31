@@ -23,10 +23,13 @@ const fadeIndervals = {
     slow: 1000
 };
 
+const marqueeSpeed = 5;
+
 // audio tag identifier
 const mainAudioTag = "audio#main-audio";
 const mainListTag = "div#main-lister";
 const returnButtonTag = "a#return-button";
+const pathShowTag = "div#path-text-input";
 
 const tagClasses = "simple-tag";
 
@@ -284,21 +287,39 @@ function dumpToVisualList() {
         // append to the page
         $(mainListTag).append(newA);
 
-        if ($(newA).prop("scrollWidth") > $(newA).prop("offsetWidth")) {
-            let marQ = $("<marquee></marquee>");
-            newA.html(marQ.html(newA.html()));
-        }
+        if (checkWidthOverflow(newA)) wrapInnerWithMarquee(newA);
 
     }
 
+    // update the path
+    $(pathShowTag).html(playlistData["path"]);
+
+    // check overflow
+    if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarquee(pathShowTag);
+
     // fade in the whole thing
+    $(pathShowTag).fadeIn(fadeIndervals.quick);
+    $(mainListTag).hide();
     $(mainListTag).fadeIn(fadeIndervals.quick);
 
 }
 
+function checkWidthOverflow(domItem) {
+    return $(domItem).prop("scrollWidth") > $(domItem).prop("offsetWidth");
+}
+
+function wrapInnerWithMarquee(domItem) {
+    $(domItem).wrapInner($("<marquee></marquee>").attr("scrollamount", marqueeSpeed));
+}
+
 function clearVisualList() {
-    $(mainListTag).hide();
+
+    // path shower
+    $(pathShowTag).html("&nbsp;");
+
+    // files list
     $(mainListTag).empty();
+
 }
 
 /************************

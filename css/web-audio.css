@@ -14,13 +14,17 @@ body {
     background-color: #101010;
 }
 
+marquee {
+    display: inherit;
+}
+
 audio#main-audio {
     display: none;
 }
 
 .icon-font {
     font-family: icon-font;
-    font-size: 20px;
+    font-size: 1.25rem;
 }
 
 .btn-mine {
@@ -34,11 +38,23 @@ audio#main-audio {
     color: #0A0A0A !important;
 }
 
+.btn-path-bar {
+    background-color: #151515;
+    color: #D9D9D9 !important;
+    cursor: default !important;
+}
+
+.btn-path-bar:hover {
+    background-color: #151515;
+    cursor: default !important;
+    color: #D9D9D9 !important;
+}
+
 /******************
  * Responsiveness *
  ******************/
 
-a.btn-responsive-m {
+.btn-responsive-m {
     padding: 1rem 1rem;
     font-size: 1rem;
     line-height: 1.5;
@@ -48,7 +64,7 @@ a.btn-responsive-m {
 /* @media (min-width: 576px) {} */
 /* @media (min-width: 768px) {} */
 @media (min-width: 992px) {
-    a.btn-responsive-m {
+    .btn-responsive-m {
         padding: .25rem .5rem;
         font-size: .875rem;
         line-height: 1.5;
