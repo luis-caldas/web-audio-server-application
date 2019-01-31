@@ -30,12 +30,12 @@ const returnButtonTag = "a#return-button";
 
 const tagClasses = "simple-tag";
 
+const firstTitle = "Web Audio";
+
 const possibleFileTypes = ["dir", "audio", "image", "misc"];
 
 // default initial path
 const initialPath = "/";
-
-const CSSIdentifyPrefix = "style-diff-item";
 
 const stringsDefault = {
     connection: "Unable to connect to the server",
@@ -107,8 +107,6 @@ function retrieveContentsFolder(folderPath) {
             // fill the stack
             playlistData["pathStack"].push(folderPath);
 
-            console.log(playlistData["pathStack"]);
-
             // load into global memory the loaded data
             playlistData["loaded"] = receivedJSON["files"].sort(humanTypeSensitiveSorting);
 
@@ -174,7 +172,9 @@ function openInNewTab(sourcePath) {
     window.open(sourcePath, "_blank");
 };
 
-function returnButton() {
+function returnButton() { returnPathListing(); };
+
+function returnPathListing() {
 
     // check the stack
     // the stack should always have the root in it
@@ -274,7 +274,6 @@ function dumpToVisualList() {
         newA.attr("unique-index", i);
 
         // add unique type class
-        newA.addClass(CSSIdentifyPrefix + "-" + playlistData["loaded"][i][2])
         newA.addClass("btn");
         newA.addClass("btn-mine");
 
@@ -283,9 +282,16 @@ function dumpToVisualList() {
 
         // append to the page
         $(mainListTag).append(newA);
-        $(mainListTag).fadeIn(fadeIndervals.quick);
+
+        if ($(newA).prop("scrollWidth") > $(newA).prop("offsetWidth")) {
+            let marQ = $("<marquee></marquee>");
+            newA.html(marQ.html(newA.html()));
+        }
 
     }
+
+    // fade in the whole thing
+    $(mainListTag).fadeIn(fadeIndervals.quick);
 
 }
 
@@ -298,7 +304,17 @@ function clearVisualList() {
  * First time execution *
  ************************/
 
+window.onpopstate = () => {
+    returnPathListing();
+    history.pushState({}, "");
+};
+
 $(document).ready(function(){
+
+    // first buffer state for the back button
+    history.pushState({}, "");
+
+    $("title").html(firstTitle);
 
     // retrieve the contents folder
     retrieveContentsFolder(initialPath);

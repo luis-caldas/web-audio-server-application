@@ -5,10 +5,11 @@
 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
         <meta name="description" content="Web Audio Server - Browse and play musics remotely">
         <meta name="author" content="Luis Caldas - luiscaldas.com">
+        <meta name="theme-color" content="#101010" />
         <link rel="icon" href="favicon.ico">
 
         <title></title>
@@ -18,27 +19,31 @@
 
         <!-- My CSS files -->
         <link href="css/web-audio.css" rel="stylesheet">
-
     </head>
 
     <body>
+        <nav class="navbar navbar-expand-sm">
+            <a class="btn btn-mine icon-font" id="return-button">&#xe802;</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!--
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                </ul>
+            </div> -->
+        </nav>
 
-
-        <!-- Begin page content -->
+        <!-- Main audio tag used -->
         <audio id="main-audio"></audio>
 
-        <div class="container" id="header">
-            <a class="btn btn-mine btn-block" id="return-button">Return if possible</a>
-        </div>
-
-        <br><br>
-
-        <div class="container" id="path-viewer"></div>
-
+        <!-- Dynamic button spawning -->
         <div class="container">
             <div class="btn-group-vertical btn-block" id="main-lister"></div>
         </div>
-
 
         <!-- Bootstrap core JavaScript
         ================================================== -->
@@ -48,6 +53,5 @@
 
         <!-- My script files -->
         <script src="js/web-audio.js"></script>
-
     </body>
 </html>

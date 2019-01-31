@@ -1,16 +1,26 @@
 @font-face {
-    font-family: KellySlab;
-    src: url("../fonts/KellySlab-Regular.ttf");
+    font-family: roboto-mono;
+    src: url("../fonts/roboto-mono.ttf");
+}
+
+@font-face {
+    font-family: icon-font;
+    src: url("../fonts/icons.ttf");
 }
 
 body {
-    font-family: KellySlab;
+    font-family: roboto-mono, monospace;
     color: #D9D9D9;
     background-color: #101010;
 }
 
 audio#main-audio {
     display: none;
+}
+
+.icon-font {
+    font-family: icon-font;
+    font-size: 20px;
 }
 
 .btn-mine {
