@@ -23,8 +23,6 @@ const fadeIndervals = {
     slow: 1000
 };
 
-const marqueeSpeed = 5;
-
 // audio tag identifier
 const mainAudioTag = "audio#main-audio";
 const mainListTag = "div#main-lister";
@@ -309,7 +307,8 @@ function checkWidthOverflow(domItem) {
 }
 
 function wrapInnerWithMarquee(domItem) {
-    $(domItem).wrapInner($("<marquee></marquee>").attr("scrollamount", marqueeSpeed));
+    $(domItem).wrapInner($("<div></div>").addClass("mine-marquee"))
+              .wrapInner($("<div></div>").addClass("mine-marquee-overflow"));
 }
 
 function clearVisualList() {
