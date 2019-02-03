@@ -1,3 +1,7 @@
+/***********
+ * Imports *
+ ***********/
+
 @font-face {
     font-family: roboto-mono;
     src: url("../fonts/roboto-mono.ttf");
@@ -7,6 +11,10 @@
     font-family: icon-font;
     src: url("../fonts/font-awesome.ttf");
 }
+
+/***********
+ * Overall *
+ ***********/
 
 body {
     font-family: roboto-mono, monospace;
@@ -26,6 +34,30 @@ audio#main-audio {
     font-family: icon-font;
     font-size: 1.25rem;
 }
+
+/***************
+ * Listing Div *
+ ***************/
+
+.parent-inside {
+    display: flex;
+}
+
+.parent-text-link-inside {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+}
+
+.text-link-inside {
+    position: absolute;
+    transform: translateY(-50%);
+    top: 50%;
+}
+
+/***********
+ * Buttons *
+ ***********/
 
 .btn-mine {
     text-align: left;
@@ -54,16 +86,17 @@ audio#main-audio {
  * Marquee *
  ***********/
 
-.mine-marquee-overflow {
-    overflow: hidden;
-}
-
 .mine-marquee {
     display: inline-block;
     animation: my-marquee-keyframes;
     animation-iteration-count: infinite;
     animation-timing-function: ease-out;
     animation-duration: 10s;
+}
+
+.mine-marquee-overflow {
+    display: grid;
+    overflow: hidden;
 }
 
 @keyframes my-marquee-keyframes {
@@ -74,16 +107,16 @@ audio#main-audio {
         transform: translateX(0%);
     }
     80%  {
-        transform: translateX(calc(100vw - 100% - 30px - 4rem));
+        transform: translateX(-100%);
     }
     90% {
-        transform: translateX(calc(100vw - 100% - 30px - 4rem));
+        transform: translateX(-100%);
     }
     95% {
-        transform: translateX(0%));
+        transform: translateX(0%);
     }
     100% {
-        transform: translateX(0%));
+        transform: translateX(0%);
     }
 }
 
@@ -98,6 +131,11 @@ audio#main-audio {
     border-radius: .3rem;
 }
 
+.parent-icon-link-inside {
+    font-size: 1rem;
+    padding-right: 1.5rem;
+}
+
 /* @media (min-width: 576px) {} */
 /* @media (min-width: 768px) {} */
 @media (min-width: 992px) {
@@ -108,6 +146,11 @@ audio#main-audio {
         border-radius: .2rem;
     }
 
+    .parent-icon-link-inside {
+        font-size: .875rem;
+        padding-right: .75rem;
+    }
+
     @keyframes my-marquee-keyframes {
         0%   {
             transform: translateX(0%);
@@ -116,16 +159,16 @@ audio#main-audio {
             transform: translateX(0%);
         }
         80%  {
-            transform: translateX(calc(100vw - 100% - 30px - 2rem));
+            transform: translateX(-100%);
         }
         90% {
-            transform: translateX(calc(100vw - 100% - 30px - 2rem));
+            transform: translateX(-100%);
         }
         95% {
-            transform: translateX(0%));
+            transform: translateX(0%);
         }
         100% {
-            transform: translateX(0%));
+            transform: translateX(0%);
         }
     }
 

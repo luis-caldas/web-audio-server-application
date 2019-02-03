@@ -35,9 +35,12 @@ const firstTitle = "Web Audio";
 
 const possibleFileTypes = ["dir", "audio", "image", "misc"];
 
+const iconFontFileTypeListRelation = ["\uf07b", "\uf001", "\uf03e", "\uf15b"];
+
 const iconFontRelation = {
     "arrow-alt-left": "\uf060",
-    "arrow-alt-right": "\uf061"
+    "arrow-alt-right": "\uf061",
+    "file-type-icons": iconFontFileTypeListRelation
 };
 
 // default initial path
@@ -274,11 +277,30 @@ function dumpToVisualList() {
         // create a new 'a' tag
         let newA = $("<a></a>");
 
+        // create the parent div
+        let parentLink = $("<div></div>");
+        parentLink.addClass("parent-inside");
+
+        // icon part inside the link
+        let iconLinkParent = $("<div></div>");
+        iconLinkParent.addClass("parent-icon-link-inside");
+        let iconLink = $("<div></div>");
+        iconLink.addClass("icon-link-inside");
+        iconLink.addClass("icon-font");
+
+        // load the right icon for the file type
+        iconLink.html(iconFontFileTypeListRelation[
+            possibleFileTypes.indexOf(playlistData["loaded"][i][2])
+        ]);
+
         // text part inside the link
+        let textLinkParent = $("<div></div>");
+        textLinkParent.addClass("parent-text-link-inside");
         let textLink = $("<div></div>");
+        textLink.addClass("text-link-inside");
 
         // populate the tag with the new informations
-        newA.text(playlistData["loaded"][i][0]);
+        textLink.text(playlistData["loaded"][i][0]);
 
         // add its own index
         newA.attr("unique-index", i);
@@ -291,10 +313,19 @@ function dumpToVisualList() {
         // add onclick function
         newA.click(itemClick);
 
+        // append the icon and text to the parent
+        iconLinkParent.append(iconLink);
+        textLinkParent.append(textLink);
+        parentLink.append(iconLinkParent);
+        parentLink.append(textLinkParent);
+
+        // append the parent to the link
+        newA.append(parentLink);
+
         // append to the page
         $(mainListTag).append(newA);
 
-        if (checkWidthOverflow(newA)) wrapInnerWithMarquee(newA);
+        if (checkWidthOverflow(textLinkParent)) wrapInnerWithMarquee(textLink, $(textLinkParent).width());
 
     }
 
@@ -302,7 +333,7 @@ function dumpToVisualList() {
     $(pathShowTag).html(playlistData["path"]);
 
     // check overflow
-    if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarquee(pathShowTag);
+    if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarqueeOverflow($(pathShowTag), $(pathShowTag).width());
 
     // fade in the whole thing
     $(pathShowTag).fadeIn(fadeIndervals.quick);
@@ -315,9 +346,37 @@ function checkWidthOverflow(domItem) {
     return $(domItem).prop("scrollWidth") > $(domItem).prop("offsetWidth");
 }
 
-function wrapInnerWithMarquee(domItem) {
-    $(domItem).wrapInner($("<div></div>").addClass("mine-marquee"))
-              .wrapInner($("<div></div>").addClass("mine-marquee-overflow"));
+function wrapInnerWithMarquee(domItem, limitedSize) {
+    // create marquee div
+    let marqueeDiv = $("<div></div>");
+    marqueeDiv.addClass("mine-marquee");
+
+    // wrap the dom in the marquee
+    $(domItem).wrapInner(marqueeDiv);
+
+    // new marquee reference
+    let marqueeReference = domItem.find("div.mine-marquee");
+
+    // chage its size for the animation to work
+    marqueeReference.width(marqueeReference.width() - limitedSize);
+}
+
+function wrapInnerWithMarqueeOverflow(domItem, limitedSize) {
+    // create marquee div
+    let marqueeDiv = $("<div></div>");
+    marqueeDiv.addClass("mine-marquee");
+
+    // wrap the dom
+    $(domItem).wrapInner(marqueeDiv);
+
+    // new marquee reference
+    let marqueeReference = domItem.find("div.mine-marquee");
+
+    // chage its size for the animation to work
+    marqueeReference.width(marqueeReference.width() - limitedSize);
+
+    // wrap the dom with the overflow protection
+    $(domItem).wrapInner($("<div></div>").addClass("mine-marquee-overflow"));
 }
 
 function clearVisualList() {
