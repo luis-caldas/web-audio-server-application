@@ -32,8 +32,6 @@ const loadingTag = "div#loading-block";
 
 const tagClasses = "simple-tag";
 
-const firstTitle = "Web Audio";
-
 const possibleFileTypes = ["dir", "audio", "image", "misc"];
 
 const iconFontFileTypeListRelation = ["\uf07b", "\uf001", "\uf03e", "\uf15b"];
@@ -412,8 +410,6 @@ $(document).ready(function(){
 
     // first buffer state for the back button
     history.pushState({}, "");
-
-    $("title").html(firstTitle);
 
     // retrieve the contents folder
     retrieveContentsFolder(initialPath);
