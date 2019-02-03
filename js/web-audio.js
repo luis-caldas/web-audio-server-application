@@ -28,6 +28,7 @@ const mainAudioTag = "audio#main-audio";
 const mainListTag = "div#main-lister";
 const returnButtonTag = "a#return-button";
 const pathShowTag = "div#path-text-input";
+const loadingTag = "div#loading-block";
 
 const tagClasses = "simple-tag";
 
@@ -175,7 +176,7 @@ function musClick(itemClicked) {
     $(mainAudioTag)[0].play();
 };
 
-function imgClick(itemClicked) { openInNewTab(buildFullUrl(myServer, "file", { path: itemClicked[1] })) };
+function imgClick(itemClicked) { /* openInNewTab(buildFullUrl(myServer, "file", { path: itemClicked[1] })) */ };
 function mscClick(itemClicked) { openInNewTab(buildFullUrl(myServer, "file", { path: itemClicked[1] })) };
 
 function openInNewTab(sourcePath) {
@@ -319,6 +320,11 @@ function dumpToVisualList() {
         parentLink.append(iconLinkParent);
         parentLink.append(textLinkParent);
 
+        // check if is a picture and add lightbox stuff in it
+        if (playlistData["loaded"][i][2] === possibleFileTypes[2])
+            newA.attr("href", buildFullUrl(myServer, "file", { path: playlistData["loaded"][i][1] }))
+                .attr("data-lightbox", "covers");
+
         // append the parent to the link
         newA.append(parentLink);
 
@@ -336,6 +342,7 @@ function dumpToVisualList() {
     if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarqueeOverflow($(pathShowTag), $(pathShowTag).width());
 
     // fade in the whole thing
+    $(loadingTag).hide();
     $(pathShowTag).fadeIn(fadeIndervals.quick);
     $(mainListTag).hide();
     $(mainListTag).fadeIn(fadeIndervals.quick);
@@ -387,6 +394,9 @@ function clearVisualList() {
     // files list
     $(mainListTag).empty();
 
+    // show the loading block
+    $(loadingTag).fadeIn(fadeIndervals.quick);
+
 }
 
 /************************
@@ -410,5 +420,8 @@ $(document).ready(function(){
 
     // attach function to return button
     $(returnButtonTag).click(returnButton);
+
+    // hide the loading
+    $(loadingTag).hide();
 
 });

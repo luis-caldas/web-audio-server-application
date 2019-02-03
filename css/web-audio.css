@@ -174,3 +174,59 @@ audio#main-audio {
 
 }
 /* @media (min-width: 1200px) {} */
+
+/************
+ * Lightbox *
+ ************/
+
+ /*
+.lightbox .lb-image {
+    border-color: #252525;
+}
+
+.lb-outerContainer {
+    background-color: #252525;
+}
+*/
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/*********************
+ * Loading animation *
+ *********************/
+
+#loading-block {
+    display: grid;
+}
+
+.note-dancing {
+    font-family: icon-font;
+    font-size: 4rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.loading-anim {
+    animation: loading-spin 4s cubic-bezier(0.05, 0.78, 0.53, 0.83) infinite;
+}
+
+@keyframes loading-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    20% {
+        transform: rotate(-45deg);
+    }
+    80% {
+        transform: rotate(360deg);
+    }
+    95% {
+        transform: rotate(350deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
