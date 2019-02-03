@@ -333,6 +333,13 @@ function dumpToVisualList() {
 
     }
 
+    // replace normal folder slashes for
+    if (playlistData["path"] != "/") {
+        playlistData["path"] = playlistData["path"].replace(/\//g, " \u279C ");
+    } else {
+        playlistData["path"] = "Root";
+    }
+
     // update the path
     $(pathShowTag).html(playlistData["path"]);
 
