@@ -4,18 +4,11 @@
  * Globals *
  ***********/
 
-var playlistData = {};
+var listingData = {};
 
 /*****************
  * Configuration *
  *****************/
-
-// server connection settings
-const myServer = {
-    address: "192.168.43.175",
-    port: 30086,
-    protocol: "http"
-};
 
 const fadeIndervals = {
     quick: 100,
@@ -66,7 +59,15 @@ const buildParameters = (fullURL, parameters) => {
 
 const buildFullUrl = (serverObject, getString, parameters) => {
     return buildParameters(buildUrl(serverObject, getString), parameters);
-}
+};
+
+const extractTypeList = (listItems, typeToExtract) => {
+    let typeListExtracted = [];
+    for (let i = 0; i < listItems.length; ++i)
+        if (listItems[i][2] == typeToExtract)
+            typeListExtracted.push([listItems[i][0], listItems[i][1]]);
+    return typeListExtracted;
+};
 
 // callback functions for done() fail() always() respectively for the ajax requests
 // each must receive json as input
@@ -106,17 +107,17 @@ function retrieveContentsFolder(folderPath) {
         if (receivedJSON.hasOwnProperty("files")) {
 
             // set the default path
-            playlistData["path"] = folderPath;
+            listingData["path"] = folderPath;
 
             // create the path stack
-            if (!playlistData.hasOwnProperty("pathStack"))
-                playlistData["pathStack"] = [];
+            if (!listingData.hasOwnProperty("pathStack"))
+                listingData["pathStack"] = [];
 
             // fill the stack
-            playlistData["pathStack"].push(folderPath);
+            listingData["pathStack"].push(folderPath);
 
             // load into global memory the loaded data
-            playlistData["loaded"] = receivedJSON["files"].sort(humanTypeSensitiveSorting);
+            listingData["loaded"] = receivedJSON["files"].sort(humanTypeSensitiveSorting);
 
             // dump to the page
             dumpToVisualList();
@@ -137,7 +138,7 @@ function itemClick () {
     let itemIndex = $(this).attr("unique-index");
 
     // get the information from the index
-    let itemNow = playlistData["loaded"][itemIndex];
+    let itemNow = listingData["loaded"][itemIndex];
 
     // dependent in which type of file use a different function
     switch (itemNow[2]) {
@@ -169,9 +170,15 @@ function dirClick(itemClicked) {
 };
 
 function musClick(itemClicked) {
-    $("title").html(itemClicked[0]);
-    $(mainAudioTag).attr("src", buildFullUrl(myServer, "file", { path: itemClicked[1] }));
-    $(mainAudioTag)[0].play();
+
+    // extract songs
+    let listPathNameCoupleAudio = extractTypeList(listingData["loaded"], possibleFileTypes[1]);
+
+    // create the full path
+    for (let i = 0; i < listPathNameCoupleAudio.length; ++i)
+        listPathNameCoupleAudio[i][1] = buildFullUrl(myServer, "file", { path: listPathNameCoupleAudio[i][1] });
+
+    webPlayer.updateListPlay(listPathNameCoupleAudio, itemClicked[0]);
 };
 
 function imgClick(itemClicked) { /* openInNewTab(buildFullUrl(myServer, "file", { path: itemClicked[1] })) */ };
@@ -187,13 +194,13 @@ function returnPathListing() {
 
     // check the stack
     // the stack should always have the root in it
-    if (playlistData["pathStack"].length > 1) {
+    if (listingData["pathStack"].length > 1) {
 
         // remove the last stack item
-        playlistData["pathStack"].pop();
+        listingData["pathStack"].pop();
 
         // copy the last stack item
-        let lastStackItem = playlistData["pathStack"].pop();
+        let lastStackItem = listingData["pathStack"].pop();
 
         // reload folder
         cleanAndDir(lastStackItem);
@@ -201,6 +208,10 @@ function returnPathListing() {
     }
 
 };
+
+function updateChangeSong() {
+    $("title").html(webPlayer.playingName);
+}
 
 /***********
  * Sorting *
@@ -265,13 +276,13 @@ function humanTypeSensitiveSorting(inA, inB) {
 function dumpToVisualList() {
 
     // iterate the items in the playlist
-    if (!playlistData.hasOwnProperty("loaded")) {
+    if (!listingData.hasOwnProperty("loaded")) {
         warningFn(stringsDefault.default);
         return;
     }
 
     // iterate the items
-    for (let i = 0; i < playlistData["loaded"].length; ++i) {
+    for (let i = 0; i < listingData["loaded"].length; ++i) {
 
         // create a new 'a' tag
         let newA = $("<a></a>");
@@ -289,7 +300,7 @@ function dumpToVisualList() {
 
         // load the right icon for the file type
         iconLink.html(iconFontFileTypeListRelation[
-            possibleFileTypes.indexOf(playlistData["loaded"][i][2])
+            possibleFileTypes.indexOf(listingData["loaded"][i][2])
         ]);
 
         // text part inside the link
@@ -299,7 +310,7 @@ function dumpToVisualList() {
         textLink.addClass("text-link-inside");
 
         // populate the tag with the new informations
-        textLink.text(playlistData["loaded"][i][0]);
+        textLink.text(listingData["loaded"][i][0]);
 
         // add its own index
         newA.attr("unique-index", i);
@@ -319,8 +330,8 @@ function dumpToVisualList() {
         parentLink.append(textLinkParent);
 
         // check if is a picture and add lightbox stuff in it
-        if (playlistData["loaded"][i][2] === possibleFileTypes[2])
-            newA.attr("href", buildFullUrl(myServer, "file", { path: playlistData["loaded"][i][1] }))
+        if (listingData["loaded"][i][2] === possibleFileTypes[2])
+            newA.attr("href", buildFullUrl(myServer, "file", { path: listingData["loaded"][i][1] }))
                 .attr("data-lightbox", "covers");
 
         // append the parent to the link
@@ -334,14 +345,14 @@ function dumpToVisualList() {
     }
 
     // replace normal folder slashes for
-    if (playlistData["path"] != "/") {
-        playlistData["path"] = playlistData["path"].replace(/\//g, " \u279C ");
+    if (listingData["path"] != "/") {
+        listingData["path"] = listingData["path"].replace(/\//g, " \u279C ");
     } else {
-        playlistData["path"] = "Root";
+        listingData["path"] = "Root";
     }
 
     // update the path
-    $(pathShowTag).html(playlistData["path"]);
+    $(pathShowTag).html(listingData["path"]);
 
     // check overflow
     if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarqueeOverflow($(pathShowTag), $(pathShowTag).width());
@@ -426,5 +437,13 @@ $(document).ready(function(){
 
     // hide the loading
     $(loadingTag).hide();
+
+    // attach the audio tag to the webplayer
+    webPlayer.audioTagDOM = $(mainAudioTag)[0];  // must be the real dom
+    webPlayer.musicChangedCallback = updateChangeSong;
+    webPlayer.addEndedListener();
+
+    // attach the keypress callback to the webplayer
+    $(document).keydown(webPlayer.keypressFunction);
 
 });
