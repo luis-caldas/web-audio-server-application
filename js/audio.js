@@ -104,6 +104,7 @@ webPlayer.updateList = function(namePathCoupleList) {
 };
 
 webPlayer.playAudio = function(filePath) {
+    webPlayer.musicChangedCallback();
     webPlayer.audioTagDOM.src = filePath;
     webPlayer.audioTagDOM.play();
 };
