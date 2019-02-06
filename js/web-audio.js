@@ -22,6 +22,7 @@ const mainListTag = "div#main-lister";
 const returnButtonTag = "a#return-button";
 const pathShowTag = "div#path-text-input";
 const loadingTag = "div#loading-block";
+const audioTextTag = "div.audio-playing-text div.text-input";
 
 const tagClasses = "simple-tag";
 
@@ -210,7 +211,14 @@ function returnPathListing() {
 };
 
 function updateChangeSong() {
+
+    // update the title
     $("title").html(webPlayer.playingName);
+
+    // update the player text
+    $(audioTextTag).html(webPlayer.playingName);
+    if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
+
 }
 
 /***********
