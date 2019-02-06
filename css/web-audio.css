@@ -62,7 +62,7 @@ audio#main-audio {
 
 .audio-container {
     flex: 1;
-    display: grid;
+    display: block;
 }
 
 .audio-container-top {
@@ -84,14 +84,19 @@ audio#main-audio {
     flex: 1;
 }
 
-/*
-.audio-button.progress-side-button {
-    flex: 1;
-}
-*/
-
 .audio-button.volume-side-button {
     flex: 25%;
+}
+
+.audio-playing-text {
+    flex: 1;
+    background-color: #1A1A1A;
+    height: 2.5rem;
+    display: flex;
+}
+
+.audio-vertical-center {
+    margin: auto;
 }
 
 .progress {
