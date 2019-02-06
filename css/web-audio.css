@@ -17,8 +17,9 @@
  ***********/
 
 body {
+    min-width: 300px;
     font-family: roboto-mono, monospace;
-    color: #D9D9D9;
+    color: #E0E0E0;
     background-color: #101010;
 }
 
@@ -33,6 +34,129 @@ audio#main-audio {
 .icon-font {
     font-family: icon-font;
     font-size: 1.25rem;
+}
+
+/**************
+ * Sticky top *
+ **************/
+
+.sticky-top .btn {
+    font-size: 1.15rem;
+}
+
+.sticky-top-back {
+    background-color: #E0E0E030;
+}
+
+.sticky-top-offset {
+    display: flex;
+}
+
+.sticky-top-left {
+    display: flex;
+}
+
+.sticky-top-right {
+    flex: 1;
+}
+
+.audio-container {
+    flex: 1;
+    display: grid;
+}
+
+.audio-container-top {
+    display: flex;
+}
+
+.audio-container-middle {
+    display: flex;
+}
+
+.audio-container-bottom {
+    display: flex;
+}
+
+.audio-button {
+    width: 3rem;
+    border-radius: 0;
+    text-align: center !important;
+    flex: 1;
+}
+
+/*
+.audio-button.progress-side-button {
+    flex: 1;
+}
+*/
+
+.audio-button.volume-side-button {
+    flex: 25%;
+}
+
+.progress {
+    background-color: #373737;
+}
+
+.progress-bar {
+    background-color: #E0E0E0;
+}
+
+.progress-parent {
+    background-color: #1A1A1A;
+    display: grid;
+}
+
+.progress-wrapper {
+    margin-top: auto;
+    margin-bottom: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#audio-progress {
+    height: 2.5rem;
+    flex: 1;
+}
+
+#audio-progress #audio-progress-bar {
+    width: 50%;
+}
+
+#volume-progress #volume-progress-bar {
+    width: 50%;
+}
+
+#volume-progress {
+    flex: 75%;
+}
+
+.out-vertical-text {
+    display: grid;
+}
+
+.inside-vertical-text {
+    margin: auto;
+}
+
+/**********************
+ * Rounding shortcuts *
+ **********************/
+
+.rdd-tl {
+    border-top-left-radius: .25rem;
+}
+
+.rdd-tr {
+    border-top-right-radius: .25rem;
+}
+
+.rdd-bl {
+    border-bottom-left-radius: .25rem;
+}
+
+.rdd-br {
+    border-bottom-right-radius: .25rem;
 }
 
 /***************
@@ -62,7 +186,7 @@ audio#main-audio {
 .btn-mine {
     text-align: left;
     background-color: #1A1A1A;
-    color: #D9D9D9;
+    color: #E0E0E0;
 }
 
 .btn-mine:hover {
@@ -72,14 +196,14 @@ audio#main-audio {
 
 .btn-path-bar {
     background-color: #151515;
-    color: #D9D9D9 !important;
+    color: #E0E0E0 !important;
     cursor: default !important;
 }
 
 .btn-path-bar:hover {
     background-color: #151515;
     cursor: default !important;
-    color: #D9D9D9 !important;
+    color: #E0E0E0 !important;
 }
 
 /***********
@@ -178,16 +302,6 @@ audio#main-audio {
 /************
  * Lightbox *
  ************/
-
- /*
-.lightbox .lb-image {
-    border-color: #252525;
-}
-
-.lb-outerContainer {
-    background-color: #252525;
-}
-*/
 
 .btn:focus {
     outline: none;

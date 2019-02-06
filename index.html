@@ -45,9 +45,63 @@
         <!-- Main audio tag used -->
         <audio id="main-audio"></audio>
 
-        <!-- Return button -->
-        <div class="container-fluid mb-3 mt-3">
-            <a class="btn btn-mine icon-font" id="return-button">&#xF060;</a>
+        <!-- Sticky top with audio player-->
+        <div class="container-fluid mb-3 pt-3 sticky-top">
+            <div class="container-fluid sticky-top-back p-0 rounded">
+                <div class="container-fluid sticky-top-offset p-2">
+
+                    <!-- Return button -->
+                    <div class="sticky-top-left">
+                        <a class="btn btn-mine icon-font out-vertical-text" id="return-button">
+                            <div class="inside-vertical-text">&#xF060;</div>
+                        </a>
+                    </div>
+
+                    <!-- Audio container -->
+                    <div class="sticky-top-right">
+                        <div class="ml-2 rounded audio-container">
+
+                            <!-- Top part of the audio player -->
+                            <div class="audio-container-top">
+
+                                <!-- Progress bar -->
+                                <div class="progress-parent rdd-tr rdd-tl" id="audio-progress">
+                                    <div class="progress-wrapper">
+                                        <div class="progress">
+                                            <div class="progress-bar" id="audio-progress-bar" role="progressbar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Middle part of the audio player -->
+                            <div class="audio-container-middle">
+                                <div class="btn btn-mine icon-font audio-button volume-side-button">&#xf1ce;</div>
+
+                                <!-- Volume bar -->
+                                <div class="progress-parent" id="volume-progress">
+                                    <div class="progress-wrapper">
+                                        <div class="progress">
+                                            <div class="progress-bar" id="volume-progress-bar" role="progressbar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Bottom part of the audio player -->
+                            <div class="audio-container-bottom">
+                                <div class="btn btn-mine icon-font audio-button rdd-bl">&#xf048;</div>
+                                <div class="btn btn-mine icon-font audio-button">&#xf051;</div>
+                                <div class="btn btn-mine icon-font audio-button">&#xf074;</div>
+                                <div class="btn btn-mine icon-font audio-button rdd-br">&#xf2f9;</div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Path bar shower -->

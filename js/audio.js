@@ -115,55 +115,19 @@ webPlayer.playIndex = function() {
 };
 
 webPlayer.next = function() {
-
     let newIndex = 0;
-
-    switch (webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat]) {
-        case "repeatAll":
-            newIndex = webPlayer.playingIndex + 1;
-            if (newIndex >= webPlayer.playlist.length) newIndex = 0;
-            webPlayer.playingIndex = newIndex;
-            webPlayer.playIndex();
-            break;
-        case "repeatOne":
-            webPlayer.playIndex();
-            break;
-        case "off":
-            newIndex = webPlayer.playingIndex + 1;
-            if (newIndex >= webPlayer.playlist.length) {
-                webPlayer.playingIndex = 0;
-                webPlayer.audioTagDOM.stop();
-            } else webPlayer.playIndex();
-            break;
-        default:
-    }
-
+    newIndex = webPlayer.playingIndex + 1;
+    if (newIndex >= webPlayer.playlist.length) newIndex = 0;
+    webPlayer.playingIndex = newIndex;
+    webPlayer.playIndex();
 };
 
 webPlayer.previous = function() {
-
     let newIndex = 0;
-
-    switch (webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat]) {
-        case "repeatAll":
-            newIndex = webPlayer.playingIndex - 1;
-            if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
-            webPlayer.playingIndex = newIndex;
-            webPlayer.playIndex();
-            break;
-        case "repeatOne":
-            webPlayer.playIndex();
-            break;
-        case "off":
-            newIndex = webPlayer.playingIndex - 1;
-            if (newIndex > 0) {
-                webPlayer.playingIndex = webPlayer.playlist.length - 1;
-                webPlayer.audioTagDOM.stop();
-            } else webPlayer.playIndex();
-            break;
-        default:
-    }
-
+    newIndex = webPlayer.playingIndex - 1;
+    if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
+    webPlayer.playingIndex = newIndex;
+    webPlayer.playIndex();
 };
 
 webPlayer.audioEnded = function() {
