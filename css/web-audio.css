@@ -143,15 +143,23 @@ audio#main-audio {
 }
 
 #audio-progress #audio-progress-bar {
-    width: 50%;
+    width: 0%;
 }
 
 #volume-progress #volume-progress-bar {
-    width: 50%;
+    width: 100%;
 }
 
 #volume-progress {
     flex: 50%;
+}
+
+.progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
 }
 
 .out-vertical-text {

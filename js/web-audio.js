@@ -23,6 +23,8 @@ const returnButtonTag = "a#return-button";
 const pathShowTag = "div#path-text-input";
 const loadingTag = "div#loading-block";
 const audioTextTag = "div.audio-playing-text div.text-input";
+const audioProgressBarTag = "div#audio-progress-bar";
+const volumeProgressBarTag = "div#volume-progress-bar"
 
 const tagClasses = "simple-tag";
 
@@ -463,6 +465,14 @@ function updateButton(buttonName) {
     }
 };
 
+/*****************
+ * Progress bars *
+ *****************/
+
+function musicProgressBarUpdate(currentTime, totalTime) {
+    $(audioProgressBarTag).width((currentTime / totalTime * 100) + "%");
+};
+
 /************************
  * First time execution *
  ************************/
@@ -512,10 +522,13 @@ $(document).ready(function(){
 
     // add the on music change local function callbacks
     webPlayer.musicChangedCallback = updateChangeSong;
-    webPlayer.addEndedListener();
+    webPlayer.addAudioTagListeners();
 
     // add local icon change callback
     webPlayer.iconChangeCallback = updateButton;
+
+    // add music progress bar on change callback
+    webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
 
     // attach the keypress callback to the webplayer
     $(document).keydown(webPlayer.keyPressFunction);

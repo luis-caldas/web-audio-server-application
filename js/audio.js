@@ -84,7 +84,10 @@ var webPlayer = {
     musicChangedCallback: emptyFunction,
 
     // object with callbacks for icon change
-    iconChangeCallback: emptyFunction
+    iconChangeCallback: emptyFunction,
+
+    // music progress changed callback
+    musicProgressChangeCallback: emptyFunction
 
 };
 
@@ -180,8 +183,16 @@ webPlayer.audioEnded = function() {
     webPlayer.next();
 };
 
-webPlayer.addEndedListener = function() {
+webPlayer.durationChange = function() {
+    webPlayer.musicProgressChangeCallback(
+        webPlayer.audioTagDOM.currentTime,
+        webPlayer.audioTagDOM.duration
+    );
+};
+
+webPlayer.addAudioTagListeners = function() {
     webPlayer.audioTagDOM.onended = webPlayer.audioEnded;
+    webPlayer.audioTagDOM.ontimeupdate = webPlayer.durationChange;
 };
 
 webPlayer.updateListPlay = function(namePathCoupleList, songName) {
