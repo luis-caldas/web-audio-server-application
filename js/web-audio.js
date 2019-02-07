@@ -518,6 +518,32 @@ function clickedVolumeBar(event) {
     webPlayer.updateVolume();
 };
 
+/***************
+ * Key presses *
+ ***************/
+
+const keyRelation = {
+    codeKeyRelation: {
+        r: 82
+    },
+    keyFunctionRelation: {
+        return: "r"
+    }
+}
+
+function getKeyCode(functionName) {
+    return keyRelation.codeKeyRelation[keyRelation.keyFunctionRelation[functionName]];
+}
+
+function onKeyPress(keypressEvent) {
+    switch (keypressEvent.which) {
+        case getKeyCode("return"):
+            returnButton();
+            break;
+        default:
+    }
+};
+
 /************************
  * First time execution *
  ************************/
@@ -581,7 +607,10 @@ $(document).ready(function(){
     $(audioProgressBarParentTag).click(clickedProgressBar);
 
     // attach the keypress callback to the webplayer
-    $(document).keydown(webPlayer.keyPressFunction);
+    $(document).keydown((event) => {
+        onKeyPress(event);
+        webPlayer.keyPressFunction(event);
+    });
 
     // map all the audio buttons to the object functions
     assignAudioPlayerButtonsToObject();
