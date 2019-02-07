@@ -179,30 +179,70 @@ webPlayer.playIndex = function() {
     webPlayer.playAudio(webPlayer.playlist[webPlayer.playingIndex][1]);
 };
 
-webPlayer.next = function() {
+webPlayer.next = function(respectRepeat = false) {
     if (!webPlayer.playlistLoaded()) return;
 
     let newIndex = 0;
-    newIndex = webPlayer.playingIndex + 1;
-    if (newIndex >= webPlayer.playlist.length) newIndex = 0;
-    webPlayer.playingIndex = newIndex;
-    webPlayer.playIndex();
+    let respectedCase = respectRepeat ?
+        webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat] :
+        "repeatAll";
+
+    switch (respectedCase) {
+        case "off":
+            newIndex = webPlayer.playingIndex + 1;
+            if (newIndex >= webPlayer.playlist.length) newIndex = 0;
+            else {
+                webPlayer.playingIndex = newIndex;
+                webPlayer.playIndex();
+            }
+            break;
+        case "repeatAll":
+            newIndex = webPlayer.playingIndex + 1;
+            if (newIndex >= webPlayer.playlist.length) newIndex = 0;
+            webPlayer.playingIndex = newIndex;
+            webPlayer.playIndex();
+            break;
+        case "repeatOne":
+            webPlayer.playIndex();
+            break;
+        default:
+    }
 
 };
 
-webPlayer.previous = function() {
+webPlayer.previous = function(respectRepeat) {
     if (!webPlayer.playlistLoaded()) return;
 
     let newIndex = 0;
-    newIndex = webPlayer.playingIndex - 1;
-    if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
-    webPlayer.playingIndex = newIndex;
-    webPlayer.playIndex();
+    let respectedCase = respectRepeat ?
+        webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat] :
+        "repeatAll";
+
+    switch (respectedCase) {
+        case "off":
+            newIndex = webPlayer.playingIndex - 1;
+            if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
+            else {
+                webPlayer.playingIndex = newIndex;
+                webPlayer.playIndex();
+            }
+            break;
+        case "repeatAll":
+            newIndex = webPlayer.playingIndex - 1;
+            if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
+            webPlayer.playingIndex = newIndex;
+            webPlayer.playIndex();
+            break;
+        case "repeatOne":
+            webPlayer.playIndex();
+            break;
+        default:
+    }
 
 };
 
 webPlayer.audioEnded = function() {
-    webPlayer.next();
+    webPlayer.next(true);
 };
 
 webPlayer.durationChange = function() {
