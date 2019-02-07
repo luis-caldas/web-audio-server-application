@@ -484,7 +484,36 @@ function updateVolumeIcon(currentTime, totalTime) {
 
     // font awesome didnt help here
 
-}
+};
+
+function shuffleButtonUpdate(shuffleValue) {
+    // get the repeat value and set visual accordingly
+    switch (shuffleValue) {
+        case "off":
+            $("#shuffle").removeClass("btn-active-1");
+            break;
+        case "on":
+            $("#shuffle").addClass("btn-active-1");
+            break;
+        default:
+    }
+};
+
+function repeatButtonUpdate(repeatValue) {
+    // get the repeat value and set visual accordingly
+    switch (repeatValue) {
+        case "off":
+            $("#repeat").removeClass("btn-active-1").addClass("btn-active-2");
+            break;
+        case "repeatAll":
+            $("#repeat").removeClass("btn-active-1").removeClass("btn-active-2");
+            break;
+        case "repeatOne":
+            $("#repeat").addClass("btn-active-1").removeClass("btn-active-2");
+            break;
+        default:
+    }
+};
 
 /*****************
  * Progress bars *
@@ -559,8 +588,8 @@ function assignAudioPlayerButtonsToObject() {
         playpause: webPlayer.buttonPressPlayPause,
         previous: webPlayer.buttonPressPrevious,
         next: webPlayer.buttonPressNext,
-        shuffle: () => {},
-        repeat: () => {},
+        shuffle: webPlayer.buttonPressShuffle,
+        repeat: webPlayer.buttonPressRepeat,
         volume: webPlayer.buttonPressVolume
     };
 
@@ -601,6 +630,10 @@ $(document).ready(function(){
     // add music progress bar on change callback
     webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
     webPlayer.musicVolumeChangeCallback = musicVolumeBarUpdate;
+
+    // add the shuffle and repeat buttons callback
+    webPlayer.shuffleChangeCallback = shuffleButtonUpdate;
+    webPlayer.repeatChangeCallback = repeatButtonUpdate;
 
     // add onclick events for the bars
     $(volumeProgressBarParentTag).click(clickedVolumeBar);

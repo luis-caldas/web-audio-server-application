@@ -94,7 +94,11 @@ var webPlayer = {
 
     // music progress and volume bars changed callback
     musicProgressChangeCallback: emptyFunction,
-    musicVolumeChangeCallback: emptyFunction
+    musicVolumeChangeCallback: emptyFunction,
+
+    // shuffle and repeat callback
+    shuffleChangeCallback: emptyFunction,
+    repeatChangeCallback: emptyFunction
 
 };
 
@@ -243,6 +247,28 @@ webPlayer.setExactVolume = function(newVolume) {
 webPlayer.updateVolume = function() {
     webPlayer.audioTagDOM.volume = (webPlayer.volume / 100);
     webPlayer.musicVolumeChangeCallback(webPlayer.volume, 100);
+};
+
+webPlayer.rotateState = function(stateName) {
+    // get the maximum number of states
+    let maxStates = webPlayer.playerStatesPossibilities[stateName].length;
+
+    // rotation always 1 up
+    webPlayer.playerStates[stateName] += 1
+
+    // check for overflow and rotate it
+    if (webPlayer.playerStates[stateName] >= maxStates)
+        webPlayer.playerStates[stateName] = 0;
+};
+
+webPlayer.buttonPressShuffle = function() {
+    webPlayer.rotateState("shuffle");
+    webPlayer.shuffleChangeCallback(webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle]);
+};
+
+webPlayer.buttonPressRepeat = function() {
+    webPlayer.rotateState("repeat");
+    webPlayer.repeatChangeCallback(webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat]);
 };
 
 webPlayer.buttonPressPlayPause = function() {
