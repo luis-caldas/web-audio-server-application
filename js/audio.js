@@ -98,11 +98,16 @@ function sleep(ms) {
 
 webPlayer.init = function() {};
 
+webPlayer.playlistLoaded = function() {
+    return webPlayer.playlist.length != 0;
+};
+
 webPlayer.getCode = function(functionName) {
     return webPlayer.codeKeyRelation[webPlayer.keyFunctionRelation[functionName]];
 };
 
 webPlayer.playPause = function() {
+    if (!webPlayer.playlistLoaded()) return;
     if (webPlayer.audioTagDOM.paused) webPlayer.audioTagDOM.play();
     else webPlayer.audioTagDOM.pause();
     webPlayer.iconChangeCallback("playpause");
@@ -150,19 +155,25 @@ webPlayer.playIndex = function() {
 };
 
 webPlayer.next = function() {
+    if (!webPlayer.playlistLoaded()) return;
+
     let newIndex = 0;
     newIndex = webPlayer.playingIndex + 1;
     if (newIndex >= webPlayer.playlist.length) newIndex = 0;
     webPlayer.playingIndex = newIndex;
     webPlayer.playIndex();
+
 };
 
 webPlayer.previous = function() {
+    if (!webPlayer.playlistLoaded()) return;
+
     let newIndex = 0;
     newIndex = webPlayer.playingIndex - 1;
     if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
     webPlayer.playingIndex = newIndex;
     webPlayer.playIndex();
+
 };
 
 webPlayer.audioEnded = function() {
