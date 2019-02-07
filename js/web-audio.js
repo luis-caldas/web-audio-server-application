@@ -23,8 +23,8 @@ const returnButtonTag = "a#return-button";
 const pathShowTag = "div#path-text-input";
 const loadingTag = "div#loading-block";
 const audioTextTag = "div.audio-playing-text div.text-input";
-const audioProgressBarTag = "div#audio-progress-bar";
-const volumeProgressBarTag = "div#volume-progress-bar"
+const audioProgressBarTag = "div#audio-progress div#audio-progress-bar";
+const volumeProgressBarTag = "div#volume-progress div#volume-progress-bar"
 
 const tagClasses = "simple-tag";
 
@@ -37,7 +37,12 @@ const iconFontRelation = {
     "arrow-alt-right": "\uf061",
     "file-type-icons": iconFontFileTypeListRelation,
     "play": "\uf04b",
-    "pause": "\uf04c"
+    "pause": "\uf04c",
+    "volume": {
+        "off": "\uf026",
+        "down": "\uf027",
+        "up": "\uf028"
+    }
 };
 
 // default initial path
@@ -465,12 +470,31 @@ function updateButton(buttonName) {
     }
 };
 
+function updateVolumeIcon(currentTime, totalTime) {
+
+    // get the percentage
+    let volumePercentage = currentTime / totalTime * 100;
+
+    // set the icons depending on the percentage
+    if (volumePercentage == 0) $("#volume").html(iconFontRelation["volume"]["off"]);
+    else if (volumePercentage < 50) $("#volume").html(iconFontRelation["volume"]["down"]);
+    else $("#volume").html(iconFontRelation["volume"]["up"]);
+
+    // font awesome didnt help here
+
+}
+
 /*****************
  * Progress bars *
  *****************/
 
 function musicProgressBarUpdate(currentTime, totalTime) {
     $(audioProgressBarTag).width((currentTime / totalTime * 100) + "%");
+};
+
+function musicVolumeBarUpdate(currentTime, totalTime) {
+    $(volumeProgressBarTag).width((currentTime / totalTime * 100) + "%");
+    updateVolumeIcon(currentTime, totalTime);
 };
 
 /************************
@@ -490,7 +514,7 @@ function assignAudioPlayerButtonsToObject() {
         next: webPlayer.buttonPressNext,
         shuffle: () => {},
         repeat: () => {},
-        volume: () => {}
+        volume: webPlayer.buttonPressVolume
     };
 
     // split the relation keys
@@ -529,6 +553,7 @@ $(document).ready(function(){
 
     // add music progress bar on change callback
     webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
+    webPlayer.musicVolumeChangeCallback = musicVolumeBarUpdate;
 
     // attach the keypress callback to the webplayer
     $(document).keydown(webPlayer.keyPressFunction);

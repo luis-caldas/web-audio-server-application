@@ -54,6 +54,10 @@ audio#main-audio {
     font-size: 1.15rem;
 }
 
+.svg-correct-size {
+    height: 1.15rem;
+}
+
 .sticky-top-back {
     background-color: #E0E0E030;
 }

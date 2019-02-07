@@ -36,6 +36,7 @@ var webPlayer = {
 
     // volume
     volume: 100.0,
+    volumeLastState: null,
 
     // add a queue for changing the audio source code
     srcChangeQueue: [],
@@ -86,8 +87,9 @@ var webPlayer = {
     // object with callbacks for icon change
     iconChangeCallback: emptyFunction,
 
-    // music progress changed callback
-    musicProgressChangeCallback: emptyFunction
+    // music progress and volume bars changed callback
+    musicProgressChangeCallback: emptyFunction,
+    musicVolumeChangeCallback: emptyFunction
 
 };
 
@@ -217,6 +219,7 @@ webPlayer.changeVolume = function(changeOffset) {
 
 webPlayer.updateVolume = function() {
     webPlayer.audioTagDOM.volume = (webPlayer.volume / 100);
+    webPlayer.musicVolumeChangeCallback(webPlayer.volume, 100);
 };
 
 webPlayer.buttonPressPlayPause = function() {
@@ -230,6 +233,18 @@ webPlayer.buttonPressPrevious = function() {
 webPlayer.buttonPressNext = function() {
     webPlayer.next();
 };
+
+webPlayer.buttonPressVolume = function() {
+    if (webPlayer.volume != 0) {
+        webPlayer.volumeLastState = webPlayer.volume;
+        webPlayer.volume = 0;
+        webPlayer.updateVolume();
+    } else if (webPlayer.volumeLastState != null) {
+        webPlayer.volume = webPlayer.volumeLastState;
+        webPlayer.volumeLastState = null;
+        webPlayer.updateVolume();
+    }
+}
 
 webPlayer.keyPressFunction = function(keypressEvent) {
     switch (keypressEvent.which) {
