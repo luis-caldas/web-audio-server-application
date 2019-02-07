@@ -151,7 +151,7 @@ audio#main-audio {
 }
 
 #volume-progress {
-    flex: 75%;
+    flex: 50%;
 }
 
 .out-vertical-text {

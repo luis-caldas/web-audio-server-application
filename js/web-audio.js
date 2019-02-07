@@ -33,7 +33,9 @@ const iconFontFileTypeListRelation = ["\uf07b", "\uf001", "\uf03e", "\uf15b"];
 const iconFontRelation = {
     "arrow-alt-left": "\uf060",
     "arrow-alt-right": "\uf061",
-    "file-type-icons": iconFontFileTypeListRelation
+    "file-type-icons": iconFontFileTypeListRelation,
+    "play": "\uf04b",
+    "pause": "\uf04c"
 };
 
 // default initial path
@@ -443,6 +445,24 @@ function clearVisualList() {
 
 }
 
+/**********************
+ * Audio icon changes *
+ **********************/
+
+function playPauseButtonUpdate() {
+    if (webPlayer.audioTagDOM.paused) $("#playpause").html(iconFontRelation["play"]);
+    else $("#playpause").html(iconFontRelation["pause"]);
+}
+
+function updateButton(buttonName) {
+    switch (buttonName) {
+        case "playpause":
+            playPauseButtonUpdate();
+            break;
+        default:
+    }
+};
+
 /************************
  * First time execution *
  ************************/
@@ -455,11 +475,12 @@ window.onpopstate = () => {
 function assignAudioPlayerButtonsToObject() {
 
     let buttonFunctionRelation = {
-        playpause: () => {},
+        playpause: webPlayer.buttonPressPlayPause,
         previous: webPlayer.buttonPressPrevious,
         next: webPlayer.buttonPressNext,
         shuffle: () => {},
-        repeat: () => {}
+        repeat: () => {},
+        volume: () => {}
     };
 
     // split the relation keys
@@ -488,12 +509,18 @@ $(document).ready(function(){
 
     // attach the audio tag to the webplayer
     webPlayer.audioTagDOM = $(mainAudioTag)[0];  // must be the real dom
+
+    // add the on music change local function callbacks
     webPlayer.musicChangedCallback = updateChangeSong;
     webPlayer.addEndedListener();
+
+    // add local icon change callback
+    webPlayer.iconChangeCallback = updateButton;
 
     // attach the keypress callback to the webplayer
     $(document).keydown(webPlayer.keyPressFunction);
 
+    // map all the audio buttons to the object functions
     assignAudioPlayerButtonsToObject();
 
 });

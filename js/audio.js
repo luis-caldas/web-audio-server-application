@@ -81,7 +81,10 @@ var webPlayer = {
     },
 
     // function that will be called on music change
-    musicChangedCallback: emptyFunction
+    musicChangedCallback: emptyFunction,
+
+    // object with callbacks for icon change
+    iconChangeCallback: emptyFunction
 
 };
 
@@ -102,6 +105,7 @@ webPlayer.getCode = function(functionName) {
 webPlayer.playPause = function() {
     if (webPlayer.audioTagDOM.paused) webPlayer.audioTagDOM.play();
     else webPlayer.audioTagDOM.pause();
+    webPlayer.iconChangeCallback("playpause");
 };
 
 webPlayer.changeTime = function(changeOffset) {
@@ -117,6 +121,7 @@ webPlayer.consumeQueue = async function() {
     webPlayer.audioTagDOM.src = webPlayer.srcChangeQueue.pop();
     webPlayer.srcChangeQueue = [];
     webPlayer.audioTagDOM.play();
+    webPlayer.iconChangeCallback("playpause");
 };
 
 webPlayer.consumeQueueIfTimed = function() {
@@ -190,6 +195,10 @@ webPlayer.changeVolume = function(changeOffset) {
 
 webPlayer.updateVolume = function() {
     webPlayer.audioTagDOM.volume = (webPlayer.volume / 100);
+};
+
+webPlayer.buttonPressPlayPause = function() {
+    webPlayer.playPause();
 };
 
 webPlayer.buttonPressPrevious = function() {
