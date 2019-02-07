@@ -37,6 +37,11 @@ var webPlayer = {
     // volume
     volume: 100.0,
 
+    // add a queue for changing the audio source code
+    srcChangeQueue: [],
+    srcLastConsumed: null,
+    srcConsimungInterval: 250,  // miliseconds
+
     // few audio player states and its possibilities
     playerStates: {
         repeat: 1
@@ -84,6 +89,10 @@ var webPlayer = {
  * Functions *
  *************/
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 webPlayer.init = function() {};
 
 webPlayer.getCode = function(functionName) {
@@ -103,10 +112,31 @@ webPlayer.updateList = function(namePathCoupleList) {
     webPlayer.playlist = namePathCoupleList;
 };
 
-webPlayer.playAudio = function(filePath) {
+webPlayer.consumeQueue = async function() {
     webPlayer.musicChangedCallback();
-    webPlayer.audioTagDOM.src = filePath;
+    webPlayer.audioTagDOM.src = webPlayer.srcChangeQueue.pop();
+    webPlayer.srcChangeQueue = [];
     webPlayer.audioTagDOM.play();
+};
+
+webPlayer.consumeQueueIfTimed = function() {
+    if (webPlayer.srcLastConsumed === null || (Date.now() >= webPlayer.srcLastConsumed + webPlayer.srcConsimungInterval)) {
+        webPlayer.consumeQueue();
+        webPlayer.srcLastConsumed = Date.now();
+        return true;
+    } else return false;
+};
+
+webPlayer.updateAndConsumeQueue = function(filePath) {
+    webPlayer.srcChangeQueue.push(filePath);
+    if (!webPlayer.consumeQueueIfTimed()) setTimeout(() => {
+        if (webPlayer.srcChangeQueue.length > 0)
+            webPlayer.consumeQueueIfTimed();
+    }, webPlayer.srcConsimungInterval);
+};
+
+webPlayer.playAudio = function(filePath) {
+    webPlayer.updateAndConsumeQueue(filePath);
 };
 
 webPlayer.playIndex = function() {
