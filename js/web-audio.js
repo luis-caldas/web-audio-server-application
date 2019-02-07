@@ -23,7 +23,9 @@ const returnButtonTag = "a#return-button";
 const pathShowTag = "div#path-text-input";
 const loadingTag = "div#loading-block";
 const audioTextTag = "div.audio-playing-text div.text-input";
+const audioProgressBarParentTag = "div#audio-progress div.progress";
 const audioProgressBarTag = "div#audio-progress div#audio-progress-bar";
+const volumeProgressBarParentTag = "div#volume-progress div.progress"
 const volumeProgressBarTag = "div#volume-progress div#volume-progress-bar"
 
 const tagClasses = "simple-tag";
@@ -497,6 +499,25 @@ function musicVolumeBarUpdate(currentTime, totalTime) {
     updateVolumeIcon(currentTime, totalTime);
 };
 
+function clickedProgressBar(event) {
+    // get the click location
+    let horizontalClickPosition = event.pageX - this.offsetLeft;
+    let clickedPercentage = horizontalClickPosition / this.offsetWidth * 100;
+
+    // set the volume and update
+    webPlayer.changePercentTime(clickedPercentage);
+}
+
+function clickedVolumeBar(event) {
+    // get the click location
+    let horizontalClickPosition = event.pageX - this.offsetLeft;
+    let clickedPercentage = horizontalClickPosition / this.offsetWidth * 100;
+
+    // set the volume and update
+    webPlayer.setExactVolume(clickedPercentage);
+    webPlayer.updateVolume();
+};
+
 /************************
  * First time execution *
  ************************/
@@ -554,6 +575,10 @@ $(document).ready(function(){
     // add music progress bar on change callback
     webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
     webPlayer.musicVolumeChangeCallback = musicVolumeBarUpdate;
+
+    // add onclick events for the bars
+    $(volumeProgressBarParentTag).click(clickedVolumeBar);
+    $(audioProgressBarParentTag).click(clickedProgressBar);
 
     // attach the keypress callback to the webplayer
     $(document).keydown(webPlayer.keyPressFunction);

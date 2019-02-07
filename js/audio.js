@@ -118,7 +118,18 @@ webPlayer.playPause = function() {
     webPlayer.iconChangeCallback("playpause");
 };
 
+webPlayer.changePercentTime = function(newPercentage) {
+    if (!webPlayer.playlistLoaded()) return;
+
+    // get the new time from percentage
+    let timeNew = (newPercentage / 100) * webPlayer.audioTagDOM.duration;
+
+    // set the net current time
+    webPlayer.audioTagDOM.currentTime = timeNew;
+};
+
 webPlayer.changeTime = function(changeOffset) {
+    if (!webPlayer.playlistLoaded()) return;
     webPlayer.audioTagDOM.currentTime += changeOffset;
 };
 
@@ -212,6 +223,13 @@ webPlayer.updateListPlay = function(namePathCoupleList, songName) {
 
 webPlayer.changeVolume = function(changeOffset) {
     webPlayer.volume += changeOffset;
+    // check the overflows
+    if (webPlayer.volume > 100) webPlayer.volume = 100;
+    else if (webPlayer.volume < 0) webPlayer.volume = 0;
+};
+
+webPlayer.setExactVolume = function(newVolume) {
+    webPlayer.volume = newVolume;
     // check the overflows
     if (webPlayer.volume > 100) webPlayer.volume = 100;
     else if (webPlayer.volume < 0) webPlayer.volume = 0;
