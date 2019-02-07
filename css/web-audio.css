@@ -46,9 +46,17 @@ audio#main-audio {
     font-size: 1.25rem;
 }
 
+.limit-width {
+    max-width: 1000px;
+}
+
 /**************
  * Sticky top *
  **************/
+
+.sticky-top {
+    max-width: 700px
+}
 
 .sticky-top .btn {
     font-size: 1.15rem;
@@ -73,6 +81,10 @@ audio#main-audio {
 .sticky-top-right {
     flex: 1;
 }
+
+/*******************
+ * Audio container *
+ *******************/
 
 .audio-container {
     flex: 1;
@@ -120,6 +132,10 @@ audio#main-audio {
 .no-wrap {
     white-space: nowrap !important;
 }
+
+/****************
+ * Progress Bar *
+ ****************/
 
 .progress {
     background-color: #373737;
@@ -240,6 +256,16 @@ audio#main-audio {
     cursor: default !important;
     color: #E0E0E0 !important;
 }
+
+/*********************
+ * Button variations *
+ *********************/
+
+.btn-mine.btn-active-1 { color: #30C030 !important; }
+.btn-mine.btn-active-1:hover { color: #009000 !important; }
+
+.btn-mine.btn-active-2 { color: #C03030 !important; }
+.btn-mine.btn-active-2:hover { color: #900000 !important; }
 
 /***********
  * Marquee *

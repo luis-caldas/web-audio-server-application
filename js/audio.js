@@ -45,13 +45,18 @@ var webPlayer = {
 
     // few audio player states and its possibilities
     playerStates: {
-        repeat: 1
+        repeat: 1,
+        shuffle: 0
     },
     playerStatesPossibilities: {
         repeat: [
             "off",
             "repeatAll",
             "repeatOne"
+        ],
+        shuffle: [
+            "off",
+            "on"
         ]
     },
 
