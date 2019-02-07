@@ -162,7 +162,15 @@ webPlayer.updateVolume = function() {
     webPlayer.audioTagDOM.volume = (webPlayer.volume / 100);
 };
 
-webPlayer.keypressFunction = function(keypressEvent) {
+webPlayer.buttonPressPrevious = function() {
+    webPlayer.previous();
+};
+
+webPlayer.buttonPressNext = function() {
+    webPlayer.next();
+};
+
+webPlayer.keyPressFunction = function(keypressEvent) {
     switch (keypressEvent.which) {
         case webPlayer.getCode("playpause"):
             webPlayer.playPause();

@@ -281,6 +281,85 @@ function humanTypeSensitiveSorting(inA, inB) {
  * Visual *
  **********/
 
+function changePathVisual(pathNow) {
+
+    let newPath = "";
+
+    // replace normal folder slashes for
+    if (pathNow != "/") newPath = pathNow.replace(/\//g, " \u279C ");
+    else                newPath = "Root";
+
+    // update the path
+    $(pathShowTag).html(newPath);
+
+    // check overflow
+    if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarqueeOverflow($(pathShowTag), $(pathShowTag).width());
+
+}
+
+function buildSingleLinkToDOM(typeOfLink, linkName, linkIndex, linkPath, linkOnClickFunction, whereToAppendDOM) {
+
+    // create a new 'a' tag
+    let newA = $("<a></a>");
+
+    // create the parent div
+    let parentLink = $("<div></div>");
+    parentLink.addClass("parent-inside");
+
+    // icon part inside the link
+    let iconLinkParent = $("<div></div>");
+    iconLinkParent.addClass("parent-icon-link-inside");
+    let iconLink = $("<div></div>");
+    iconLink.addClass("icon-link-inside");
+    iconLink.addClass("icon-font");
+
+    // load the right icon for the file type
+    iconLink.html(iconFontFileTypeListRelation[
+        possibleFileTypes.indexOf(typeOfLink)
+    ]);
+
+    // text part inside the link
+    let textLinkParent = $("<div></div>");
+    textLinkParent.addClass("parent-text-link-inside");
+    let textLink = $("<div></div>");
+    textLink.addClass("text-link-inside");
+
+    // populate the tag with the new informations
+    textLink.text(linkName);
+
+    // add its own index
+    newA.attr("unique-index", linkIndex);
+
+    // add unique type class
+    newA.addClass("btn");
+    newA.addClass("btn-mine");
+    newA.addClass("btn-responsive-m");
+
+    // add onclick function
+    newA.click(linkOnClickFunction);
+
+    // append the icon and text to the parent
+    iconLinkParent.append(iconLink);
+    textLinkParent.append(textLink);
+    parentLink.append(iconLinkParent);
+    parentLink.append(textLinkParent);
+
+    // check if is a picture and add lightbox stuff in it
+    if (typeOfLink == possibleFileTypes[2])
+        newA.attr("href", buildFullUrl(myServer, "file", { path: linkPath }))
+            .attr("data-lightbox", "covers");
+
+    // append the parent to the link
+    newA.append(parentLink);
+
+    // append to the page
+    $(whereToAppendDOM).append(newA);
+
+    // check if overflow and add the marque divs
+    if (checkWidthOverflow(textLinkParent)) wrapInnerWithMarquee(textLink, $(textLinkParent).width());
+
+};
+
 function dumpToVisualList() {
 
     // iterate the items in the playlist
@@ -292,80 +371,21 @@ function dumpToVisualList() {
     // iterate the items
     for (let i = 0; i < listingData["loaded"].length; ++i) {
 
-        // create a new 'a' tag
-        let newA = $("<a></a>");
-
-        // create the parent div
-        let parentLink = $("<div></div>");
-        parentLink.addClass("parent-inside");
-
-        // icon part inside the link
-        let iconLinkParent = $("<div></div>");
-        iconLinkParent.addClass("parent-icon-link-inside");
-        let iconLink = $("<div></div>");
-        iconLink.addClass("icon-link-inside");
-        iconLink.addClass("icon-font");
-
-        // load the right icon for the file type
-        iconLink.html(iconFontFileTypeListRelation[
-            possibleFileTypes.indexOf(listingData["loaded"][i][2])
-        ]);
-
-        // text part inside the link
-        let textLinkParent = $("<div></div>");
-        textLinkParent.addClass("parent-text-link-inside");
-        let textLink = $("<div></div>");
-        textLink.addClass("text-link-inside");
-
-        // populate the tag with the new informations
-        textLink.text(listingData["loaded"][i][0]);
-
-        // add its own index
-        newA.attr("unique-index", i);
-
-        // add unique type class
-        newA.addClass("btn");
-        newA.addClass("btn-mine");
-        newA.addClass("btn-responsive-m");
-
-        // add onclick function
-        newA.click(itemClick);
-
-        // append the icon and text to the parent
-        iconLinkParent.append(iconLink);
-        textLinkParent.append(textLink);
-        parentLink.append(iconLinkParent);
-        parentLink.append(textLinkParent);
-
-        // check if is a picture and add lightbox stuff in it
-        if (listingData["loaded"][i][2] === possibleFileTypes[2])
-            newA.attr("href", buildFullUrl(myServer, "file", { path: listingData["loaded"][i][1] }))
-                .attr("data-lightbox", "covers");
-
-        // append the parent to the link
-        newA.append(parentLink);
-
-        // append to the page
-        $(mainListTag).append(newA);
-
-        if (checkWidthOverflow(textLinkParent)) wrapInnerWithMarquee(textLink, $(textLinkParent).width());
+        buildSingleLinkToDOM(
+            listingData["loaded"][i][2],
+            listingData["loaded"][i][0],
+            i,
+            listingData["loaded"][i][1],
+            itemClick,
+            mainListTag
+        );
 
     }
 
     // replace normal folder slashes for
-    if (listingData["path"] != "/") {
-        listingData["path"] = listingData["path"].replace(/\//g, " \u279C ");
-    } else {
-        listingData["path"] = "Root";
-    }
+    changePathVisual(listingData["path"]);
 
-    // update the path
-    $(pathShowTag).html(listingData["path"]);
-
-    // check overflow
-    if (checkWidthOverflow(pathShowTag)) wrapInnerWithMarqueeOverflow($(pathShowTag), $(pathShowTag).width());
-
-    // fade in the whole thing
+    // some eye candy
     $(loadingTag).hide();
     $(pathShowTag).fadeIn(fadeIndervals.quick);
     $(mainListTag).hide();
@@ -432,6 +452,26 @@ window.onpopstate = () => {
     history.pushState({}, "");
 };
 
+function assignAudioPlayerButtonsToObject() {
+
+    let buttonFunctionRelation = {
+        playpause: () => {},
+        previous: webPlayer.buttonPressPrevious,
+        next: webPlayer.buttonPressNext,
+        shuffle: () => {},
+        repeat: () => {}
+    };
+
+    // split the relation keys
+    let functionAudioKeys = Object.keys(buttonFunctionRelation);
+
+    // iterate and add the on click events
+    for (let i = 0; i < functionAudioKeys.length; ++i)
+        // find the button through is similar entry ID
+        $("#" + functionAudioKeys[i]).click(buttonFunctionRelation[functionAudioKeys[i]]);
+
+};
+
 $(document).ready(function(){
 
     // first buffer state for the back button
@@ -452,6 +492,8 @@ $(document).ready(function(){
     webPlayer.addEndedListener();
 
     // attach the keypress callback to the webplayer
-    $(document).keydown(webPlayer.keypressFunction);
+    $(document).keydown(webPlayer.keyPressFunction);
+
+    assignAudioPlayerButtonsToObject();
 
 });
