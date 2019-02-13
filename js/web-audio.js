@@ -530,8 +530,8 @@ function musicVolumeBarUpdate(currentTime, totalTime) {
 
 function clickedProgressBar(event) {
     // get the click location
-    let horizontalClickPosition = event.pageX - this.offsetLeft;
-    let clickedPercentage = horizontalClickPosition / this.offsetWidth * 100;
+    let horizontalClickPosition = event.pageX - $(this).offset().left;
+    let clickedPercentage = horizontalClickPosition / $(this).width() * 100;
 
     // set the volume and update
     webPlayer.changePercentTime(clickedPercentage);
@@ -539,8 +539,8 @@ function clickedProgressBar(event) {
 
 function clickedVolumeBar(event) {
     // get the click location
-    let horizontalClickPosition = event.pageX - this.offsetLeft;
-    let clickedPercentage = horizontalClickPosition / this.offsetWidth * 100;
+    let horizontalClickPosition = event.pageX - $(this).offset().left;
+    let clickedPercentage = horizontalClickPosition / $(this).width() * 100;
 
     // set the volume and update
     webPlayer.setExactVolume(clickedPercentage);
