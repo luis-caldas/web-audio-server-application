@@ -242,34 +242,89 @@ function updateChangeSong() {
  * Sorting *
  ***********/
 
-function sortAlphaNum(inA, inB) {
+function strnatcmp (a, b) {
 
-    let sortingReAlpha = /[^a-zA-Z]/g;
-    let sortingReNum = /[^0-9]/g;
+    let leadingZeros = /^0+(?=\d)/;
+    let whitespace = /^\s/;
+    let digit = /^\d/;
 
-    // parse the item to int
-    let intA = parseInt(inA, 10);
-    let intB = parseInt(inB, 10);
+    if (arguments.length !== 2) return null;
 
-    if (isNaN(intA) && isNaN(intB)) {
+    if (!a.length || !b.length) return a.length - b.length
 
-        let alphaA = inA.replace(sortingReAlpha, "");
-        let alphaB = inB.replace(sortingReAlpha, "");
+    let i = 0
+    let j = 0
 
-        if (alphaA === alphaB) {
-            let numA = parseInt(inA.replace(sortingReNum, ""), 10);
-            let numB = parseInt(inB.replace(sortingReNum, ""), 10);
-            return numA === numB ? 0 : numA > numB ? 1 : -1;
-        } else
-            return alphaA > alphaB ? 1 : -1;
-    } else
-        if(isNaN(intA)) return 1;
-    else
-        if(isNaN(intB)) return -1;
-    else
-        return intA > intB ? 1 : -1;
+    a = a.replace(leadingZeros, "")
+    b = b.replace(leadingZeros, "")
 
-};
+    while (i < a.length && j < b.length) {
+
+            // skip consecutive whitespace
+            while (whitespace.test(a.charAt(i))) i++;
+            while (whitespace.test(b.charAt(j))) j++;
+
+            let ac = a.charAt(i);
+            let bc = b.charAt(j);
+            let aIsDigit = digit.test(ac);
+            let bIsDigit = digit.test(bc);
+
+        if (aIsDigit && bIsDigit) {
+
+            let bias = 0;
+            let fractional = ac === '0' || bc === '0';
+
+            do {
+
+                if (!aIsDigit)
+                    return -1;
+                else if (!bIsDigit)
+                    return 1;
+                else if (ac < bc) {
+                    if (!bias)
+                        bias = -1;
+                    if (fractional)
+                        return -1;
+                } else if (ac > bc) {
+                    if (!bias)
+                        bias = 1;
+                    if (fractional)
+                        return 1;
+                }
+
+                ac = a.charAt(++i);
+                bc = b.charAt(++j);
+
+                aIsDigit = digit.test(ac);
+                bIsDigit = digit.test(bc);
+
+            } while (aIsDigit || bIsDigit);
+
+            if (!fractional && bias) return bias;
+
+            continue;
+        }
+
+        if (!ac || !bc)
+            continue;
+        else if (ac < bc)
+            return -1;
+        else if (ac > bc)
+            return 1;
+
+        i++;
+        j++;
+
+    }
+
+    var iBeforeStrEnd = i < a.length;
+    var jBeforeStrEnd = j < b.length;
+
+    // Check which string ended first
+    // return -1 if a, 1 if b, 0 otherwise
+    return (iBeforeStrEnd > jBeforeStrEnd) - (iBeforeStrEnd < jBeforeStrEnd);
+
+}
 
 function humanTypeSensitiveSorting(inA, inB) {
 
@@ -287,7 +342,7 @@ function humanTypeSensitiveSorting(inA, inB) {
     let wB = possibleFileTypes.indexOf(fileExtensionB);
 
     // if the extensions are equal tun the alpha num sorting
-    if (wA == wB) return sortAlphaNum(fileNameA, fileNameB);
+    if (wA == wB) return strnatcmp(fileNameA, fileNameB);
 
     // sort the weights
     return wA < wB ? -1 : 1;
