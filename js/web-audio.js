@@ -45,7 +45,8 @@ const iconFontRelation = {
         "off": "\uf026",
         "down": "\uf027",
         "up": "\uf028"
-    }
+    },
+    "folder-separator": "\u279c"
 };
 
 // default initial path
@@ -250,13 +251,13 @@ function strnatcmp (a, b) {
 
     if (arguments.length !== 2) return null;
 
-    if (!a.length || !b.length) return a.length - b.length
+    if (!a.length || !b.length) return a.length - b.length;
 
-    let i = 0
-    let j = 0
+    let i = 0;
+    let j = 0;
 
-    a = a.replace(leadingZeros, "")
-    b = b.replace(leadingZeros, "")
+    a = a.replace(leadingZeros, "");
+    b = b.replace(leadingZeros, "");
 
     while (i < a.length && j < b.length) {
 
@@ -358,7 +359,7 @@ function changePathVisual(pathNow) {
     let newPath = "";
 
     // replace normal folder slashes for
-    if (pathNow != "/") newPath = pathNow.replace(/\//g, " \u279C ");
+    if (pathNow != "/") newPath = pathNow.replace(/\//g, " " + iconFontRelation["folder-separator"] + " ");
     else                newPath = "Root";
 
     // update the path

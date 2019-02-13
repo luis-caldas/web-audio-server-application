@@ -1,6 +1,5 @@
 #### Application
 
- - [ ] Fix file listing sorting
  - [ ] Add readmes
  - [ ] Make the volume slider dragable with mouse down and up support
  - [ ] More strict checks (such as when android user pauses through notification) for play pause icon
