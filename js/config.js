@@ -6,6 +6,6 @@
 
 const myServer = {
     address: "192.168.1.100",
-    port: 80,
+    port: 81,
     protocol: "http"
 };

@@ -94,6 +94,7 @@ var webPlayer = {
 
     // music progress and volume bars changed callback
     musicProgressChangeCallback: emptyFunction,
+    musicBufferChangeCallback: emptyFunction,
     musicVolumeChangeCallback: emptyFunction,
 
     // shuffle and repeat callback
@@ -284,6 +285,14 @@ webPlayer.audioEnded = function() {
     webPlayer.next(true);
 };
 
+webPlayer.timeUpdate = function() {
+    webPlayer.durationChange();
+};
+
+webPlayer.bufferUpdate = function() {
+    webPlayer.bufferChange();
+};
+
 webPlayer.durationChange = function() {
     webPlayer.musicProgressChangeCallback(
         webPlayer.audioTagDOM.currentTime,
@@ -291,9 +300,20 @@ webPlayer.durationChange = function() {
     );
 };
 
+webPlayer.bufferChange = function() {
+    // get the last buffered part
+    let lastOfTimeRanges = webPlayer.audioTagDOM.buffered.length - 1;
+
+    webPlayer.musicBufferChangeCallback(
+        webPlayer.audioTagDOM.buffered.start(lastOfTimeRanges),
+        webPlayer.audioTagDOM.buffered.end(lastOfTimeRanges)
+    );
+};
+
 webPlayer.addAudioTagListeners = function() {
     webPlayer.audioTagDOM.onended = webPlayer.audioEnded;
-    webPlayer.audioTagDOM.ontimeupdate = webPlayer.durationChange;
+    webPlayer.audioTagDOM.ontimeupdate = webPlayer.timeUpdate;
+    webPlayer.audioTagDOM.onprogress = webPlayer.downloadingData;
 };
 
 webPlayer.updateListPlay = function(namePathCoupleList, songName) {
@@ -332,13 +352,12 @@ webPlayer.updateVolume = function() {
     webPlayer.musicVolumeChangeCallback(webPlayer.volume, 100);
 };
 
-webPlayer.createShuffledPlaylistIfNeeded = function(saveIndex) {
+webPlayer.createShuffledPlaylistIfNeeded = function(saveIndex, buttonClick = false) {
     if (webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle] == "on")
         webPlayer.playlistShuffledIndexes = shuffleIndex(webPlayer.playlist.length, saveIndex);
-    else {
+    else if (buttonClick && webPlayer.playlistShuffledIndexes.length > 0) {
         // normalize the index if changed before
-        if (webPlayer.playlistShuffledIndexes.length > 0)
-            webPlayer.playingIndex = webPlayer.playlistShuffledIndexes[webPlayer.playingIndex];
+        webPlayer.playingIndex = webPlayer.playlistShuffledIndexes[webPlayer.playingIndex];
     }
 };
 
@@ -356,7 +375,7 @@ webPlayer.rotateState = function(stateName) {
 
 webPlayer.buttonPressShuffle = function() {
     webPlayer.rotateState("shuffle");
-    webPlayer.createShuffledPlaylistIfNeeded(webPlayer.playingIndex);
+    webPlayer.createShuffledPlaylistIfNeeded(webPlayer.playingIndex, true);
     webPlayer.shuffleChangeCallback(webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle]);
 };
 
