@@ -166,6 +166,11 @@ audio#main-audio {
     width: 0%;
 }
 
+#audio-progress #audio-buffer-progress-bar {
+    background-color: #545454;
+    width: 0%;
+}
+
 #volume-progress #volume-progress-bar {
     width: 100%;
 }

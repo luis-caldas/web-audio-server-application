@@ -94,7 +94,6 @@ var webPlayer = {
 
     // music progress and volume bars changed callback
     musicProgressChangeCallback: emptyFunction,
-    musicBufferChangeCallback: emptyFunction,
     musicVolumeChangeCallback: emptyFunction,
 
     // shuffle and repeat callback
@@ -290,24 +289,29 @@ webPlayer.timeUpdate = function() {
 };
 
 webPlayer.bufferUpdate = function() {
-    webPlayer.bufferChange();
+    webPlayer.durationChange();
 };
 
 webPlayer.durationChange = function() {
-    webPlayer.musicProgressChangeCallback(
-        webPlayer.audioTagDOM.currentTime,
-        webPlayer.audioTagDOM.duration
-    );
-};
 
-webPlayer.bufferChange = function() {
-    // get the last buffered part
+    // initialize some flags and vars
+    let bufferEnd = 0, duration = 1;
     let lastOfTimeRanges = webPlayer.audioTagDOM.buffered.length - 1;
 
-    webPlayer.musicBufferChangeCallback(
-        webPlayer.audioTagDOM.buffered.start(lastOfTimeRanges),
-        webPlayer.audioTagDOM.buffered.end(lastOfTimeRanges)
+    // if there is a time range set it
+    if (lastOfTimeRanges >= 0)
+        bufferEnd = webPlayer.audioTagDOM.buffered.end(lastOfTimeRanges);
+
+    // if there is a duration set it
+    if (webPlayer.audioTagDOM.duration)
+        duration = webPlayer.audioTagDOM.duration;
+
+    webPlayer.musicProgressChangeCallback(
+        webPlayer.audioTagDOM.currentTime,
+        duration,
+        bufferEnd
     );
+
 };
 
 webPlayer.addAudioTagListeners = function() {

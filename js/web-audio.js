@@ -25,6 +25,7 @@ const loadingTag = "div#loading-block";
 const audioTextTag = "div.audio-playing-text div.text-input";
 const audioProgressBarParentTag = "div#audio-progress div.progress";
 const audioProgressBarTag = "div#audio-progress div#audio-progress-bar";
+const audioBufferProgressBarTag = "div#audio-progress div#audio-buffer-progress-bar";
 const volumeProgressBarParentTag = "div#volume-progress div.progress"
 const volumeProgressBarTag = "div#volume-progress div#volume-progress-bar"
 
@@ -519,8 +520,18 @@ function repeatButtonUpdate(repeatValue) {
  * Progress bars *
  *****************/
 
-function musicProgressBarUpdate(currentTime, totalTime) {
-    $(audioProgressBarTag).width((currentTime / totalTime * 100) + "%");
+function musicProgressBarUpdate(currentTime, totalTime, bufferEnd) {
+
+    // calculate percentages
+    let timePercentage = currentTime / totalTime * 100;
+    let bufferPercentage =  bufferEnd / totalTime * 100;
+
+    // get the real buffer percentage
+    let realBufferPercentage = bufferPercentage - timePercentage;
+    if (realBufferPercentage < 0) realBufferPercentage = 0;
+
+    $(audioProgressBarTag).width(timePercentage + "%");
+    $(audioBufferProgressBarTag).width(realBufferPercentage + "%");
 };
 
 function musicVolumeBarUpdate(currentTime, totalTime) {
@@ -535,7 +546,7 @@ function clickedProgressBar(event) {
 
     // set the volume and update
     webPlayer.changePercentTime(clickedPercentage);
-}
+};
 
 function clickedVolumeBar(event) {
     // get the click location
@@ -558,11 +569,11 @@ const keyRelation = {
     keyFunctionRelation: {
         return: "r"
     }
-}
+};
 
 function getKeyCode(functionName) {
     return keyRelation.codeKeyRelation[keyRelation.keyFunctionRelation[functionName]];
-}
+};
 
 function onKeyPress(keypressEvent) {
     switch (keypressEvent.which) {
