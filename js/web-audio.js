@@ -62,6 +62,11 @@ const stringsDefault = {
  *********/
 
 const buildUrl = (serverObject, getString) => {
+
+    // check if the given address is valid
+    // if not set as the same one as this page
+    let hostnameNow = (!serverObject["address"]) ? window.location.hostname : serverObject["address"];
+
     return serverObject["protocol"] + "://" + serverObject["address"] + ":" +
            serverObject["port"] + (getString ? "/" + getString : "");
 };

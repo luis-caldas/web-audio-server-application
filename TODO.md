@@ -1,6 +1,5 @@
 #### Application
 
- - [ ] Add own server loading on config
  - [ ] Fix file listing sorting
  - [ ] More strict checks (such as when android user pauses through notification) for play pause icon
  - [ ] Add download option on right click
