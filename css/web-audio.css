@@ -138,6 +138,7 @@ audio#main-audio {
  ****************/
 
 .progress {
+    cursor: pointer;
     background-color: #373737;
 }
 
@@ -238,6 +239,10 @@ audio#main-audio {
 /***********
  * Buttons *
  ***********/
+
+.btn {
+    cursor: pointer;
+}
 
 .btn-mine {
     text-align: left;

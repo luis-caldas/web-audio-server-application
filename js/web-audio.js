@@ -703,7 +703,7 @@ $(document).ready(function(){
     $(audioProgressBarParentTag).click(clickedProgressBar);
 
     // add click events for the dragable volume bar
-    $(volumeProgressBarParentTag).mousedown(clickedVolumeBar);
+    // $(volumeProgressBarParentTag).mousedown(clickedVolumeBar);
 
     // attach the keypress callback to the webplayer
     $(document).keydown((event) => {
