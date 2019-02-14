@@ -204,10 +204,12 @@ audio#main-audio {
 }
 
 #volume-range::-webkit-slider-runnable-track {
+    border-radius: .25rem !important;
     background-color: #373737;
 }
 
 #volume-range::-webkit-slider-thumb {
+    border-radius: .25rem !important;
     background-color: #E0E0E0;
     outline: none !important;
     box-shadow: none !important;
