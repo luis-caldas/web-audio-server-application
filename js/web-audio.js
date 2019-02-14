@@ -609,15 +609,7 @@ function clickedProgressBar(event) {
     webPlayer.changePercentTime(clickedPercentage);
 };
 
-function clickedVolumeBar(event) {
-    // get the click location
-    let horizontalClickPosition = event.pageX - $(this).offset().left;
-    let clickedPercentage = horizontalClickPosition / $(this).width() * 100;
-
-    // set the volume and update
-    webPlayer.setExactVolume(clickedPercentage);
-    webPlayer.updateVolume();
-};
+function volumeBarUpdate(event) {};
 
 /***************
  * Key presses *
@@ -707,9 +699,11 @@ $(document).ready(function(){
     webPlayer.shuffleChangeCallback = shuffleButtonUpdate;
     webPlayer.repeatChangeCallback = repeatButtonUpdate;
 
-    // add onclick events for the bars
-    $(volumeProgressBarParentTag).click(clickedVolumeBar);
+    // add onclick events for the progress bar
     $(audioProgressBarParentTag).click(clickedProgressBar);
+
+    // add click events for the dragable volume bar
+    $(volumeProgressBarParentTag).mousedown(clickedVolumeBar);
 
     // attach the keypress callback to the webplayer
     $(document).keydown((event) => {
