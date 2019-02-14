@@ -6,6 +6,9 @@
 
 var listingData = {};
 
+// style tag for adding new rules
+var varStyle;
+
 /*****************
  * Configuration *
  *****************/
@@ -26,8 +29,7 @@ const audioTextTag = "div.audio-playing-text div.text-input";
 const audioProgressBarParentTag = "div#audio-progress div.progress";
 const audioProgressBarTag = "div#audio-progress div#audio-progress-bar";
 const audioBufferProgressBarTag = "div#audio-progress div#audio-buffer-progress-bar";
-const volumeProgressBarParentTag = "div#volume-progress div.progress"
-const volumeProgressBarTag = "div#volume-progress div#volume-progress-bar"
+const volumeProgressBarTag = "div#volume-progress input#volume-range";
 
 const tagClasses = "simple-tag";
 
@@ -595,11 +597,6 @@ function musicProgressBarUpdate(currentTime, totalTime, bufferEnd) {
     $(audioBufferProgressBarTag).width(realBufferPercentage + "%");
 };
 
-function musicVolumeBarUpdate(currentTime, totalTime) {
-    $(volumeProgressBarTag).width((currentTime / totalTime * 100) + "%");
-    updateVolumeIcon(currentTime, totalTime);
-};
-
 function clickedProgressBar(event) {
     // get the click location
     let horizontalClickPosition = event.pageX - $(this).offset().left;
@@ -609,7 +606,78 @@ function clickedProgressBar(event) {
     webPlayer.changePercentTime(clickedPercentage);
 };
 
-function volumeBarUpdate(event) {};
+/****************
+ * Range Inputs *
+ ****************/
+
+const rangeDefaultData = {
+    min:  0,
+    max:  10000,
+    init: 10000
+};
+
+function initializeRange(rangeTag) {
+    $(rangeTag).attr("min", rangeDefaultData.min);
+    $(rangeTag).attr("max", rangeDefaultData.max);
+    $(rangeTag).val(rangeDefaultData.init);
+
+    // simulate a click on initialization
+    volumeBarClicked();
+};
+
+function translateRangeToPercentage(rangeValue) {
+    return 100 / rangeDefaultData.max * rangeValue;
+};
+
+function translatePercentageToRange(percentageValue) {
+    return rangeDefaultData.max / 100 * percentageValue;
+};
+
+function updateVolumeBackgroundColor(rangeTag, percentageValue, colorBefore, colorAfter) {
+    $(varStyle).text(`
+        #volume-range::-webkit-slider-runnable-track {
+            background-image: -webkit-gradient(
+                linear,
+                left top,
+                right top,
+                color-stop(` + percentageValue + "% , " + colorBefore + `),
+                color-stop(` + percentageValue + "% , " + colorAfter + `)
+            );
+        }
+    `);
+};
+
+function musicVolumeUpdate(currentTime, totalTime) {
+
+    // get the value
+    let valueNowPercentage = currentTime / totalTime * 100;
+    let valueNow = translatePercentageToRange(valueNowPercentage);
+
+    // set the new value
+    $(volumeProgressBarTag).val(valueNow);
+
+    // update the icon
+    updateVolumeIcon(currentTime, totalTime);
+
+    // update the background color of the input range
+    updateVolumeBackgroundColor(
+        volumeProgressBarTag,
+        valueNowPercentage,
+        $(volumeProgressBarTag).css("--color-before"),
+        $(volumeProgressBarTag).css("--color-after")
+    );
+};
+
+function volumeBarClicked() {
+
+    // get the current value of the input
+    let valueNowPercentage = translateRangeToPercentage($(volumeProgressBarTag).val());
+
+    // set the volume and update
+    webPlayer.setExactVolume(valueNowPercentage);
+    webPlayer.updateVolume();
+
+};
 
 /***************
  * Key presses *
@@ -672,6 +740,10 @@ $(document).ready(function(){
     // first buffer state for the back button
     history.pushState({}, "");
 
+    // style tag to be dynamically changed for
+    // css rules that cant be accessed through dom
+    varStyle = $("<style>", { type: "text/css" }).appendTo("head");
+
     // retrieve the contents folder
     retrieveContentsFolder(initialPath);
 
@@ -693,7 +765,7 @@ $(document).ready(function(){
 
     // add music progress bar on change callback
     webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
-    webPlayer.musicVolumeChangeCallback = musicVolumeBarUpdate;
+    webPlayer.musicVolumeChangeCallback = musicVolumeUpdate;
 
     // add the shuffle and repeat buttons callback
     webPlayer.shuffleChangeCallback = shuffleButtonUpdate;
@@ -703,7 +775,8 @@ $(document).ready(function(){
     $(audioProgressBarParentTag).click(clickedProgressBar);
 
     // add click events for the dragable volume bar
-    // $(volumeProgressBarParentTag).mousedown(clickedVolumeBar);
+    initializeRange(volumeProgressBarTag);
+    $(volumeProgressBarTag).on("input", volumeBarClicked);
 
     // attach the keypress callback to the webplayer
     $(document).keydown((event) => {

@@ -172,10 +172,6 @@ audio#main-audio {
     width: 0%;
 }
 
-#volume-progress #volume-progress-bar {
-    width: 100%;
-}
-
 #volume-progress {
     flex: 50%;
 }
@@ -194,6 +190,31 @@ audio#main-audio {
 
 .inside-vertical-text {
     margin: auto;
+}
+
+/***************
+ * Range Input *
+ ***************/
+
+#volume-range {
+    display: flex;
+    margin: auto;
+    --color-before: #9A9A9A;
+    --color-after: #373737;
+}
+
+#volume-range::-webkit-slider-runnable-track {
+    background-color: #373737;
+}
+
+#volume-range::-webkit-slider-thumb {
+    background-color: #E0E0E0;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+#volume-range::-webkit-slider-thumb:active {
+    background-color: #FFFFFF;
 }
 
 /**********************
