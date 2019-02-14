@@ -70,7 +70,7 @@ const buildUrl = (serverObject, getString) => {
     // if not set as the same one as this page
     let hostnameNow = (!serverObject["address"]) ? window.location.hostname : serverObject["address"];
 
-    return serverObject["protocol"] + "://" + serverObject["address"] + ":" +
+    return serverObject["protocol"] + "://" + hostnameNow + ":" +
            serverObject["port"] + (getString ? "/" + getString : "");
 };
 
