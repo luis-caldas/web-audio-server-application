@@ -49,6 +49,10 @@ const iconFontRelation = {
         "med": "\uf6a8",
         "up": "\uf028"
     },
+    "repeat": {
+        "normal": "\uf364",
+        "one": "\uf366"
+    },
     "folder-separator": "\u279c"
 };
 
@@ -554,10 +558,10 @@ function shuffleButtonUpdate(shuffleValue) {
     // get the repeat value and set visual accordingly
     switch (shuffleValue) {
         case "off":
-            $("#shuffle").removeClass("btn-active-1");
+            $("#shuffle").addClass("inactive");
             break;
         case "on":
-            $("#shuffle").addClass("btn-active-1");
+            $("#shuffle").removeClass("inactive");
             break;
         default:
     }
@@ -567,13 +571,16 @@ function repeatButtonUpdate(repeatValue) {
     // get the repeat value and set visual accordingly
     switch (repeatValue) {
         case "off":
-            $("#repeat").removeClass("btn-active-1").addClass("btn-active-2");
+            $("#repeat").html(iconFontRelation["repeat"]["normal"]);
+            $("#repeat").addClass("inactive");
             break;
         case "repeatAll":
-            $("#repeat").removeClass("btn-active-1").removeClass("btn-active-2");
+            $("#repeat").html(iconFontRelation["repeat"]["normal"]);
+            $("#repeat").removeClass("inactive");
             break;
         case "repeatOne":
-            $("#repeat").addClass("btn-active-1").removeClass("btn-active-2");
+            $("#repeat").html(iconFontRelation["repeat"]["one"]);
+            $("#repeat").removeClass("inactive");
             break;
         default:
     }

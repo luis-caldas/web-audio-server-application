@@ -3,7 +3,7 @@
  ***********/
 
 @font-face {
-    font-family: roboto-mono;
+    font-family: roboto-local;
     src: url("../fonts/roboto-mono.ttf");
 }
 
@@ -294,11 +294,8 @@ audio#main-audio {
  * Button variations *
  *********************/
 
-.btn-mine.btn-active-1 { color: #30C030 !important; }
-.btn-mine.btn-active-1:hover { color: #009000 !important; }
-
-.btn-mine.btn-active-2 { color: #C03030 !important; }
-.btn-mine.btn-active-2:hover { color: #900000 !important; }
+.btn-mine.inactive { color: #373737 !important; }
+.btn-mine.inactive:hover { color: #B0B0B0 !important; }
 
 /***********
  * Marquee *
