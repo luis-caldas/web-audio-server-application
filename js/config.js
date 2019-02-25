@@ -6,6 +6,6 @@
 
 const myServer = {
     address: null,
-    port: 81,
+    port: 443,
     protocol: "http"
 };
