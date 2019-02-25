@@ -7,5 +7,5 @@
 const myServer = {
     address: null,
     port: 443,
-    protocol: "http"
+    protocol: "https"
 };
