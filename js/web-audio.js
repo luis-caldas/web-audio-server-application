@@ -46,6 +46,7 @@ const iconFontRelation = {
     "volume": {
         "off": "\uf026",
         "down": "\uf027",
+        "med": "\uf6a8",
         "up": "\uf028"
     },
     "folder-separator": "\u279c"
@@ -543,10 +544,9 @@ function updateVolumeIcon(currentTime, totalTime) {
 
     // set the icons depending on the percentage
     if (volumePercentage == 0) $("#volume").html(iconFontRelation["volume"]["off"]);
-    else if (volumePercentage < 50) $("#volume").html(iconFontRelation["volume"]["down"]);
+    else if (volumePercentage < 33) $("#volume").html(iconFontRelation["volume"]["down"]);
+    else if (volumePercentage < 66) $("#volume").html(iconFontRelation["volume"]["med"]);
     else $("#volume").html(iconFontRelation["volume"]["up"]);
-
-    // font awesome didnt help here
 
 };
 
