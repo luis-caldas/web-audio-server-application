@@ -5,7 +5,7 @@
 "use strict";
 
 const myServer = {
-    address: "192.168.1.100",
+    address: null,
     port: 81,
     protocol: "http"
 };
