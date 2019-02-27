@@ -19,6 +19,11 @@ const fadeIndervals = {
     slow: 1000
 };
 
+const timeouts = {
+    modal: 3,
+    ajax: 10
+}
+
 // audio tag identifier
 const mainAudioTag = "audio#main-audio";
 const mainListTag = "div#main-lister";
@@ -30,6 +35,9 @@ const audioProgressBarParentTag = "div#audio-progress div.progress";
 const audioProgressBarTag = "div#audio-progress div#audio-progress-bar";
 const audioBufferProgressBarTag = "div#audio-progress div#audio-buffer-progress-bar";
 const volumeProgressBarTag = "div#volume-progress input#volume-range";
+const modalTag = "div#main-modal";
+const modalTitleTag = "#modal-title";
+const modalTextTag = "div#warning-modal";
 
 const tagClasses = "simple-tag";
 
@@ -59,8 +67,8 @@ const iconFontRelation = {
 // default initial path
 const initialPath = "/";
 
-const stringsDefault = {
-    connection: "Unable to connect to the server",
+const infoStringsDefault = {
+    connection: "Unable to connect to the API server on " + myServer.address,
     data: "Wrong data received",
     default: "An error occurred"
 };
@@ -111,10 +119,39 @@ const defaultJSONLog = (JSONInput) => {
 
 const warningFn = (warningString) => {
     console.log(warningString);
-    alert(warningString);
+    modalPop(warningString, "Warning", 10);
+};
+
+const errorFn = (errorString) => {
+    console.log(errorString);
+    modalPop(errorString, "Error", 60);
+};
+
+const fatalErrorFn = (errorString) => {
+    console.log(errorString);
+    modalPop(errorString, "Fatal", null);
 };
 
 const nN = (inputVar) => {};
+
+/***************
+ * Modal popup *
+ ***************/
+
+function modalPop(textToShow, titleToShow = "Info", timeoutVal = timeouts.modal) {
+    // change the data
+    $(modalTextTag).html(textToShow);
+    $(modalTitleTag).html(titleToShow);
+
+    // show the modal
+    $(modalTag).modal("show");
+
+    // add timeout for the modal
+    if (!isNaN(timeoutVal))
+        setTimeout(() => {
+            $(modalTag).modal("hide");
+        }, timeoutVal * 1000);
+};
 
 /*****************
  * API Functions *
@@ -127,7 +164,8 @@ function retrieveContentsFolder(folderPath) {
         method: "POST",
         url: buildUrl(myServer, "list"),
         data: { path: folderPath },
-        dataType: "json"
+        dataType: "json",
+        timeout: timeouts.ajax * 1000
     }).done(function (receivedJSON, folderToSet){
 
         if (receivedJSON.hasOwnProperty("files")) {
@@ -148,9 +186,12 @@ function retrieveContentsFolder(folderPath) {
             // dump to the page
             dumpToVisualList();
 
-        } else warningFn(stringsDefault.data);
+        } else warningFn(infoStringsDefault.data);
 
-    }).fail(defaultJSONLog);
+    }).fail(() => {
+        $(loadingTag).hide();
+        fatalErrorFn(infoStringsDefault.connection);
+    });
 
 };
 
@@ -181,7 +222,7 @@ function itemClick () {
             mscClick(itemNow);
             break;
         default:
-            warningFn(stringsDefault.default);
+            warningFn(infoStringsDefault.default);
     }
 
 };
@@ -444,7 +485,7 @@ function dumpToVisualList() {
 
     // iterate the items in the playlist
     if (!listingData.hasOwnProperty("loaded")) {
-        warningFn(stringsDefault.default);
+        warningFn(infoStringsDefault.default);
         return;
     }
 
@@ -756,9 +797,6 @@ $(document).ready(function(){
 
     // attach function to return button
     $(returnButtonTag).click(returnButton);
-
-    // hide the loading
-    $(loadingTag).hide();
 
     // attach the audio tag to the webplayer
     webPlayer.audioTagDOM = $(mainAudioTag)[0];  // must be the real dom

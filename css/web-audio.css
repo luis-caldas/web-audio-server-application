@@ -108,6 +108,39 @@ audio#main-audio {
     max-width: 1000px;
 }
 
+/*********
+ * Modal *
+ *********/
+
+#main-modal {
+    overflow: hidden;
+}
+
+.modal-content {
+    background-color: #1A1A1A !important;
+}
+
+.modal-header {
+    border-color: #2A2A2A;
+}
+
+.modal-footer {
+    border-color: #2A2A2A;
+}
+
+.modal-content div.btn.btn-mine {
+    background-color: #2A2A2A;
+    padding-top: 0rem;
+    padding-right: 0.5rem;
+    padding-bottom: 0rem;
+    padding-left: 0.5rem;
+    font-size: 1.15rem;
+}
+
+.modal-content div.btn.btn-mine:hover {
+    background-color: #E0E0E0;
+}
+
 /**************
  * Sticky top *
  **************/

@@ -32,6 +32,20 @@
         <!-- Main audio tag used -->
         <audio id="main-audio"></audio>
 
+        <!-- Modal bootstrap popup for warnings and such -->
+        <div id="main-modal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title"></h5>
+                        <div class="btn btn-mine icon-font" data-dismiss="modal">&#xf00d;</div>
+                    </div>
+                    <div class="modal-body" id="warning-modal"></div>
+                    <div class="modal-footer d-none"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Sticky top with audio player-->
         <div class="container-fluid mb-3 pt-3 sticky-top top-block">
             <div class="container-fluid sticky-top-back p-0 rounded">
@@ -39,8 +53,8 @@
 
                     <!-- Return button -->
                     <div class="sticky-top-left">
-                        <a class="btn btn-mine icon-font out-vertical-text" id="return-button">
-                            <div class="inside-vertical-text">&#xF060;</div>
+                        <a title="Return" class="btn btn-mine icon-font out-vertical-text" id="return-button">
+                            <div class="inside-vertical-text">&#xf060;</div>
                         </a>
                     </div>
 
@@ -66,7 +80,7 @@
                                 <!-- Progress bar -->
                                 <div class="progress-parent" id="audio-progress">
                                     <div class="progress-wrapper">
-                                        <div class="progress">
+                                        <div title="Progress" class="progress">
                                             <div class="progress-bar" id="audio-progress-bar" role="progressbar"></div>
                                             <div class="progress-bar" id="audio-buffer-progress-bar" role="progressbar"></div>
                                         </div>
@@ -77,13 +91,13 @@
 
                             <!-- Middle part of the audio player -->
                             <div class="audio-container-middle">
-                                <div id="playpause" class="btn btn-mine icon-font audio-button volume-side-button">&#xf04b;</div>
-                                <div id="volume" class="btn btn-mine icon-font audio-button volume-side-button">&#xf028;</div>
+                                <div id="playpause" title="Play & Pause" class="btn btn-mine icon-font audio-button volume-side-button">&#xf04b;</div>
+                                <div id="volume" title="Mute" class="btn btn-mine icon-font audio-button volume-side-button">&#xf028;</div>
 
                                 <!-- Volume bar -->
                                 <div class="progress-parent" id="volume-progress">
                                     <div class="progress-wrapper">
-                                        <input type="range" min="0" max="10000" value="10000" class="custom-range" id="volume-range"></input>
+                                        <input title="Volume" type="range" min="0" max="10000" value="10000" class="custom-range" id="volume-range"></input>
                                     </div>
                                 </div>
 
@@ -91,10 +105,10 @@
 
                             <!-- Bottom part of the audio player -->
                             <div class="audio-container-bottom">
-                                <div id="previous" class="btn btn-mine icon-font audio-button rdd-bl">&#xf048;</div>
-                                <div id="next" class="btn btn-mine icon-font audio-button">&#xf051;</div>
-                                <div id="shuffle" class="btn btn-mine icon-font audio-button inactive">&#xf074;</div>
-                                <div id="repeat" class="btn btn-mine icon-font audio-button rdd-br">&#xf364;</div>
+                                <div id="previous" title="Previous" class="btn btn-mine icon-font audio-button rdd-bl">&#xf048;</div>
+                                <div id="next" title="Next" class="btn btn-mine icon-font audio-button">&#xf051;</div>
+                                <div id="shuffle" title="Suffle" class="btn btn-mine icon-font audio-button inactive">&#xf074;</div>
+                                <div id="repeat" title="Repeat" class="btn btn-mine icon-font audio-button rdd-br">&#xf364;</div>
                             </div>
 
                         </div>
@@ -111,7 +125,7 @@
         </div>
 
         <div class="containter-fluid mt-3 mb-3" id="loading-block">
-            <div class="loading-anim note-dancing">&#xF001;</div>
+            <div class="loading-anim note-dancing">&#xf001;</div>
         </div>
 
         <!-- Dynamic button spawning -->
