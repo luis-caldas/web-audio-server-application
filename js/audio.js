@@ -159,7 +159,6 @@ webPlayer.playPause = function() {
     if (!webPlayer.playlistLoaded()) return;
     if (webPlayer.audioTagDOM.paused) webPlayer.audioTagDOM.play();
     else webPlayer.audioTagDOM.pause();
-    webPlayer.iconChangeCallback("playpause");
 };
 
 webPlayer.changePercentTime = function(newPercentage) {
@@ -186,7 +185,6 @@ webPlayer.consumeQueue = async function() {
     webPlayer.audioTagDOM.src = webPlayer.srcChangeQueue.pop();
     webPlayer.srcChangeQueue = [];
     webPlayer.audioTagDOM.play();
-    webPlayer.iconChangeCallback("playpause");
 };
 
 webPlayer.consumeQueueIfTimed = function() {
@@ -314,10 +312,16 @@ webPlayer.durationChange = function() {
 
 };
 
+webPlayer.playPauseEvent = function() {
+    webPlayer.iconChangeCallback("playpause");
+};
+
 webPlayer.addAudioTagListeners = function() {
     webPlayer.audioTagDOM.onended = webPlayer.audioEnded;
     webPlayer.audioTagDOM.ontimeupdate = webPlayer.timeUpdate;
     webPlayer.audioTagDOM.onprogress = webPlayer.downloadingData;
+    webPlayer.audioTagDOM.onpause = webPlayer.playPauseEvent;
+    webPlayer.audioTagDOM.onplay = webPlayer.playPauseEvent;
 };
 
 webPlayer.updateListPlay = function(namePathCoupleList, songName) {

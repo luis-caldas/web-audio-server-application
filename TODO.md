@@ -1,5 +1,9 @@
 #### #TODO
 
- - [ ] More strict checks (such as when android user pauses through notification) for play pause icon
+ - [ ] Add loading animation when song is not buffered
 
- - [ ] Custom context menu for right click with the option to download
+ - [ ] Add the option to download single file or entire folder
+
+ - [ ] Show the album art in some way
+
+ - [ ] Equalizer (~8 bands, balance, mono)
