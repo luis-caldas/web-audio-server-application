@@ -68,7 +68,7 @@ const iconFontRelation = {
 const initialPath = "/";
 
 const infoStringsDefault = {
-    connection: "Unable to connect to the API server on " + myServer.address,
+    connection: "Unable to connect to the API server on " + getHostname(myServer.address),
     data: "Wrong data received",
     default: "An error occurred"
 };
@@ -77,11 +77,15 @@ const infoStringsDefault = {
  * Utils *
  *********/
 
+function getHostname(hostInput) {
+    return (!hostInput) ? window.location.hostname : hostInput;
+}
+
 const buildUrl = (serverObject, getString) => {
 
     // check if the given address is valid
     // if not set as the same one as this page
-    let hostnameNow = (!serverObject["address"]) ? window.location.hostname : serverObject["address"];
+    let hostnameNow = getHostname(serverObject["address"]);
 
     return serverObject["protocol"] + "://" + hostnameNow + ":" +
            serverObject["port"] + (getString ? "/" + getString : "");
