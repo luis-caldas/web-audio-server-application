@@ -1,2 +1,5 @@
 .*
 !.gitignore
+
+# configuration file
+js/config.js

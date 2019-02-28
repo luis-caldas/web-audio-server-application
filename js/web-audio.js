@@ -13,6 +13,13 @@ var varStyle;
  * Configuration *
  *****************/
 
+// check if configuration file was loaded and raise error if not
+if (typeof myServer === "undefined") {
+    let configString = "Could not load the configuration file";
+    alert(configString);
+    throw new Error(configString);
+}
+
 const fadeIndervals = {
     quick: 100,
     medium: 500,
@@ -117,26 +124,24 @@ const triCallback = (firstCall, secondCall, thirdCall) => {
  * Errors and warnings *
  ***********************/
 
-const defaultJSONLog = (JSONInput) => {
+function defaultJSONLog(JSONInput) {
     console.log(JSONInput);
 };
 
-const warningFn = (warningString) => {
+function warningFn(warningString) {
     console.log(warningString);
     modalPop(warningString, "Warning", 10);
 };
 
-const errorFn = (errorString) => {
+function errorFn(errorString){
     console.log(errorString);
     modalPop(errorString, "Error", 60);
 };
 
-const fatalErrorFn = (errorString) => {
+function fatalErrorFn(errorString){
     console.log(errorString);
     modalPop(errorString, "Fatal", null);
 };
-
-const nN = (inputVar) => {};
 
 /***************
  * Modal popup *
