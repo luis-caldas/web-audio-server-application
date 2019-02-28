@@ -6,4 +6,4 @@ Connects to a given API for listing and getting files.
 
 ##### Config
 
-Inside the `js/` folder copy the `config.skeleton.js` to `config.js` and edit it.
+Inside the `js/` folder copy the `config.skeleton.js` file to `config.js` and edit it.
