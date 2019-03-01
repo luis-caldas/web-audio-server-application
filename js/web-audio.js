@@ -692,7 +692,8 @@ function translatePercentageToRange(percentageValue) {
 
 function updateVolumeBackgroundColor(rangeTag, percentageValue, colorBefore, colorAfter) {
     $(varStyle).text(`
-        #volume-range::-webkit-slider-runnable-track {
+        #volume-range::-webkit-slider-runnable-track,
+        #volume-range::-moz-range-track {
             background-image: -webkit-gradient(
                 linear,
                 left top,

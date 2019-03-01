@@ -1,5 +1,7 @@
 #### #TODO
 
+ - [ ] Add time selection with number bar
+
  - [ ] Create a bar to hold aditional icons and move the return icon to it
 
  - [ ] Add repo manifest for integrating both web audio projects
