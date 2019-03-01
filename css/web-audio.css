@@ -294,14 +294,22 @@ audio#main-audio {
     --color-after: #373737;
 }
 
-#volume-range::-webkit-slider-runnable-track,
+#volume-range::-webkit-slider-runnable-track {
+    border-radius: .25rem !important;
+    background-color: #373737;
+}
 #volume-range::-moz-range-track {
     cursor: pointer;
     border-radius: .25rem !important;
     background-color: #373737;
 }
 
-#volume-range::-webkit-slider-thumb,
+#volume-range::-webkit-slider-thumb {
+    border-radius: .25rem !important;
+    background-color: #E0E0E0;
+    outline: none !important;
+    box-shadow: none !important;
+}
 #volume-range::-moz-range-thumb {
     cursor: pointer;
     border-radius: .25rem !important;
@@ -310,7 +318,9 @@ audio#main-audio {
     box-shadow: none !important;
 }
 
-#volume-range::-webkit-slider-thumb:active,
+#volume-range::-webkit-slider-thumb:active {
+    background-color: #FFFFFF;
+}
 #volume-range::-moz-range-thumb:active {
     background-color: #FFFFFF;
 }
