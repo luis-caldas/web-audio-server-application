@@ -15,3 +15,5 @@
  - [ ] Equalizer (~8 bands, balance, mono)
 
  - [ ] Chromecast support
+
+ - [ ] Script to transform both the api and application into native apps
