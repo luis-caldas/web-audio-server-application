@@ -86,7 +86,7 @@ html {
 
 body {
     min-width: 300px;
-    font-family: roboto-mono, monospace;
+    font-family: roboto-local, monospace;
     color: #E0E0E0;
     background-color: #101010;
 }

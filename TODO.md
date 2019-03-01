@@ -1,5 +1,9 @@
 #### #TODO
 
+ - [ ] Create a bar to hold aditional icons and move the return icon to it
+
+ - [ ] Add repo manifest for integrating both web audio projects
+
  - [ ] Add loading animation when song is not buffered
 
  - [ ] Update scrollbar design
@@ -9,3 +13,5 @@
  - [ ] Show the album art in some way
 
  - [ ] Equalizer (~8 bands, balance, mono)
+
+ - [ ] Chromecast support
