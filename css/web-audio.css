@@ -16,13 +16,13 @@
  * Scrollbar *
  *************/
 
+/*
 ::-webkit-scrollbar {
-    width: 1rem;
-    height: 1rem;
+    width: .5rem;
+    height: .5rem;
 }
 
 ::-webkit-scrollbar-track {
-    border-radius: .25rem !important;
     background-color: #1A1A1A;
 }
 
@@ -36,39 +36,9 @@
 }
 
 ::-webkit-scrollbar-corner {
-    border-radius: .25rem !important;
     background-color: #1A1A1A;
 }
-
-::-webkit-scrollbar-button {
-    background-color: #B0B0B0;
-    background-repeat: no-repeat;
-    background-position: center;
-    border-radius: .25rem !important;
-    width: 1rem;
-    height: 1rem;
-    color: #1A1A1A;
-}
-
-::-webkit-scrollbar-button:hover {
-    background-color: #E0E0E0;
-}
-
-::-webkit-scrollbar-button:vertical:decrement {
-    background-image: url("../images/angle-up-solid.svg");
-}
-
-::-webkit-scrollbar-button:vertical:increment {
-    background-image: url("../images/angle-down-solid.svg");
-}
-
-::-webkit-scrollbar-button:horizontal:increment {
-    background-image: url("../images/angle-right-solid.svg");
-}
-
-::-webkit-scrollbar-button:horizontal:decrement {
-    background-image: url("../images/angle-left-solid.svg");
-}
+*/
 
 /***********
  * Overall *
