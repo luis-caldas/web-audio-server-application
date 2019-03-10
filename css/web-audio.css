@@ -258,6 +258,34 @@ audio#main-audio {
     margin: auto;
 }
 
+/*************************
+ * Download progress bar *
+ *************************/
+
+.download-bar {
+    display: none;
+}
+
+.download-parent {
+    background-color: #1A1A1A;
+    display: grid;
+}
+
+.download-progress-wrapper {
+    margin-top: .75rem;
+    margin-bottom: .75rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#download-progress-bar {
+    background-color: #6C6C6C;
+}
+
+#download-text-input {
+    font-size: .875rem;
+}
+
 /***************
  * Range Input *
  ***************/

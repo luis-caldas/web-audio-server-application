@@ -114,10 +114,24 @@
         <div class="container-fluid limit-width mt-3 mb-3 icon-bar">
             <div class="icon-bar-insides">
                 <div id="return-button" title="Return" class="btn btn-mine icon-font icon-bar-button rdd-bl rdd-tl">&#xf060;</div>
-                <a id="download-file" href="" title="Download playing file" class="btn btn-mine icon-font icon-bar-button" target="_blank">&#xf56d;</a>
+                <div id="download-file" title="Download playing file" class="btn btn-mine icon-font icon-bar-button">&#xf56d;</div>
                 <div id="download-folder" title="Download this folder (only files)" class="btn btn-mine icon-font icon-bar-button">&#xf1c6;</div>
                 <div id="settings" title="Settings" class="btn btn-mine icon-font icon-bar-button">&#xf013;</div>
                 <div id="equalizer" title="Equalizer" class="btn btn-mine icon-font icon-bar-button rdd-br rdd-tr">&#xf3f2;</div>
+            </div>
+        </div>
+
+        <!-- Download progress bar -->
+        <div class="download-bar container-fluid limit-width mt-3 mb-3">
+            <div class="download-parent rounded">
+                <div class="text-center no-wrap mt-1">
+                    <div id="download-text-input">&nbsp;</div>
+                </div>
+                <div class="download-progress-wrapper">
+                    <div title="Download progress" class="progress download-progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="download-progress-bar" role="progressbar"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -128,6 +142,7 @@
             </div>
         </div>
 
+        <!-- Loading animation -->
         <div class="containter-fluid mt-3 mb-3" id="loading-block">
             <div class="loading-anim note-dancing">&#xf001;</div>
         </div>
@@ -145,6 +160,9 @@
 
         <!-- Lightbox -->
         <script src="js/lightbox.min.js"></script>
+
+        <!-- Blob file saver -->
+        <script src="js/file-saver.min.js"></script>
 
         <!-- JSZip -->
         <script src="js/jszip.min.js"></script>

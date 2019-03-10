@@ -45,10 +45,13 @@ const volumeProgressBarTag = "div#volume-progress input#volume-range";
 const modalTag = "div#main-modal";
 const modalTitleTag = "#modal-title";
 const modalTextTag = "div#warning-modal";
-const iconBarDownloadFile = "a#download-file";
+const iconBarDownloadFile = "div#download-file";
 const iconBarDownloadZIP = "div#download-folder";
 const iconBarSettings = "div#settings";
 const iconBarEqualizer = "div#equalizer";
+const downloadBar = "div.download-bar";
+const downloadBarActive = "div#download-progress-bar";
+const downloadBarText = "div#download-text-input";
 
 const tagClasses = "simple-tag";
 
@@ -81,12 +84,18 @@ const initialPath = "/";
 const infoStringsDefault = {
     connection: "Unable to connect to the API server on " + getHostname(myServer.address),
     data: "Wrong data received",
-    default: "An error occurred"
+    default: "An error occurred",
+    download: "Something else is being downloaded"
 };
 
 /*********
  * Utils *
  *********/
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, "g"), replacement);
+};
 
 function getHostname(hostInput) {
     return (!hostInput) ? window.location.hostname : hostInput;
@@ -125,10 +134,17 @@ const findNotDirs = (listData) => {
     // iterate the list and return a list with the non dir types
     for (let i = 0; i < listData.length; ++i)
         if (listData[i][2] != possibleFileTypes[0])
-            nonDirList.push([listData[0], listData[1]]);
+            nonDirList.push([listData[i][0], buildFullUrl(myServer, "file", { path: listData[i][1] })]);
 
     return nonDirList;
 
+};
+
+const simplifyPath = (pathIn) => {
+    return pathIn
+        .replaceAll(" - ", "-")
+        .replaceAll("/", "_")
+        .replaceAll(" ", "-");
 };
 
 /***********************
@@ -306,9 +322,6 @@ function updateChangeSong() {
 
     // check the audio text overflow
     if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
-
-    // change the download link reference
-    $(iconBarDownloadFile).attr("href", webPlayer.getSourceNow());
 
 }
 
@@ -787,16 +800,217 @@ function onKeyPress(keypressEvent) {
     }
 };
 
+/****************
+ * Download bar *
+ ****************/
+
+function updateDownloadBar(percentageNow) {
+    if (percentageNow > 100) percentageNow = 100;
+    if (percentageNow < 0)   percentageNow = 0;
+    $(downloadBarActive).width(percentageNow + "%");
+};
+
+function updateDownloadBarText(textDownload) {
+    $(downloadBarText).html(textDownload);
+};
+
+function zeroDownloadBar() {
+    $(downloadBarActive).width(0 + "%");
+};
+
+function showDownloadBar() {
+    $(downloadBar).fadeIn(fadeIndervals.medium);
+};
+
+function closeDownloadBar() {
+    $(downloadBar).fadeOut(fadeIndervals.medium);
+};
+
 /***************
  * Icon clicks *
  ***************/
 
-function downloadFileIconClicked(event) {
-    // check if there is any href at the link
-    if ($(iconBarDownloadFile).attr("href") === "") {
-        event.preventDefault();
-        warningFn("There is no file loaded into player");
+var isDownloading = false;
+
+function downloadFileIconClicked() {
+
+    if (isDownloading) {
+        warningFn(infoStringsDefault.download);
+        return;
     }
+
+    let sourceNow = webPlayer.getSourceNow();
+
+    // check if the source is valid
+    if (sourceNow === "") {
+        warningFn("There is no file loaded into player");
+        return;
+    }
+
+    isDownloading = true;
+
+    zeroDownloadBar();
+    updateDownloadBarText("Downloading file");
+    showDownloadBar();
+
+    // download the file as a blob
+    downloadSingleFile(sourceNow,
+        (response) => {
+            isDownloading = false;
+            closeDownloadBar();
+            saveAs(response, webPlayer.playingName);
+        },
+        () => {
+            isDownloading = false;
+            closeDownloadBar();
+            warningFn("Unable to download file from server");
+        },
+        updateDownloadBar
+    )
+
+};
+
+function downloadPathIconClicked() {
+
+    if (isDownloading) {
+        warningFn(infoStringsDefault.download);
+        return;
+    }
+
+    isDownloading = true;
+
+    // acquire the list of all the files in this folder
+    let itemsList = findNotDirs(listingData.loaded);
+    let pathChosen = listingData.path;
+
+    let totalFiles = itemsList.length;
+
+    // check if list is empty
+    if (itemsList.length < 1) {
+        warningFn("This folder does not contain files");
+        return;
+    }
+
+    // create array to hold the blobs
+    let blobArray = [];
+
+    // show the downloading tag
+    zeroDownloadBar();
+
+    // index used for the asyncronous requests iteration
+    let indexNow = 0;
+
+    // run it for the first time
+    updateIteration();
+
+    /*
+     * Up ahead there is some async stuff
+     * Be aware
+     */
+
+    function finishedDownloading(responseBlob) {
+
+        // push the received blob
+        blobArray.push([itemsList[indexNow][0], responseBlob]);
+
+        // update the index to the next item
+        ++indexNow;
+
+        // run iteration methods if there are still items
+        if (indexNow < totalFiles) updateIteration(indexNow);
+        else allDownloaded();
+
+    };
+
+    function errorDownloading() {
+        isDownloading = false;
+        closeDownloadBar();
+        warningFn("Unable to download file " + indexNow + " from server");
+    };
+
+    function updateIteration() {
+
+        // change the download display text
+        updateDownloadBarText("Downloading item " + (indexNow + 1) + " of " + totalFiles);
+        if (indexNow == 0) showDownloadBar();
+
+        // download the actual file
+        downloadSingleFile(
+            itemsList[indexNow][1],
+            finishedDownloading,
+            errorDownloading,
+            updateDownloadBar
+        );
+
+    };
+
+    function allDownloaded() {
+
+        // zip em blobs
+        var zip = new JSZip();
+
+        zeroDownloadBar();
+        updateDownloadBarText("Zipping files");
+
+        // iterate and zip blobs
+        for (let i = 0; i < blobArray.length; ++i) {
+            // add the blobs to be zipped
+            zip.file(blobArray[i][0], blobArray[i][1]);
+        }
+
+        // generate the zip blob
+        zip.generateAsync({ type:"blob" }, function(metadata) {
+
+            // on update
+            updateDownloadBar(metadata.percent.toFixed(2));
+
+        }).then(function(content) {
+
+            // save the zip blob
+            saveAs(content, simplifyPath(pathChosen) + ".zip");
+
+            closeDownloadBar();
+
+            // it is finally not downloading anymore
+            isDownloading = false;
+
+        });
+
+    };
+
+};
+
+/*****************
+ * File download *
+ *****************/
+
+function downloadSingleFile(filePath, successCallback, errorCallback, updateCallback) {
+    return $.ajax({
+        method: "GET",
+        url: filePath,
+        cache: false,
+        xhr: function() {
+            // create own xhr so events can be attached and blobs downloaded
+            let xhr = new XMLHttpRequest();
+            xhr.responseType = "blob";
+
+            // add a progress listener for the download progress update
+            xhr.addEventListener("progress", function(evt) {
+                if (evt.lengthComputable) {
+                    // calculate the percentage
+                    var percentComplete = evt.loaded / evt.total;
+
+                    // callback with the percentage the updater
+                    updateCallback(percentComplete * 100);
+                }
+            }, false);
+
+            // return the xhr object to ajax
+            return xhr;
+        }
+    })
+    .done(successCallback)
+    .fail(errorCallback);
 };
 
 /************************
@@ -831,33 +1045,9 @@ function assignAudioPlayerButtonsToObject() {
 
 function assignIconBarClicks() {
     $(iconBarDownloadFile).click(downloadFileIconClicked);
-    $(iconBarDownloadZIP).click(() => {});
+    $(iconBarDownloadZIP).click(downloadPathIconClicked);
     $(iconBarSettings).click(() => {});
     $(iconBarEqualizer).click(() => {});
-};
-
-/***********
- * Zipping *
- ***********/
-
-function procressZIPFolder() {
-
-    // get only the files
-    let fileList = findNotDirs(listingData.loaded);
-
-    // check if there are any files at all
-    if (fileList.length < 1) {
-        warningFn("There aren't any files in this folder");
-        return;
-    }
-
-    // download the files
-    downloadZIPFiles(fileList)
-
-};
-
-function downloadZIPFiles(fileNamePathList) {
-    warningFn("Zipping not implemented");
 };
 
 /********

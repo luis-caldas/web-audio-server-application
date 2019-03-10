@@ -1,6 +1,6 @@
 #### #TODO
 
- - [ ] Add the option to download single file or entire folder (zip.js or something like that)
+ - [ ] Fix all responsiveness (buttons specially)
 
  - [ ] Add repo (android command) manifest for integrating both web audio projects
 
