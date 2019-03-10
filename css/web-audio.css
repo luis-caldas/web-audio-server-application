@@ -188,6 +188,11 @@ audio#main-audio {
     margin: auto;
     padding-right: 1rem;
     padding-left: 1rem;
+    overflow: hidden;
+}
+
+.audio-vertical-center .text-input.no-wrap {
+    overflow: hidden;
 }
 
 .no-wrap {

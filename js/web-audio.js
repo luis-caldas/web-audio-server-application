@@ -292,6 +292,7 @@ function updateChangeSong() {
 
     // update the player text
     $(audioTextTag).html(webPlayer.playingName);
+
     if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
 
 }

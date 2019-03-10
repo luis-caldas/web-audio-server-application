@@ -1,5 +1,9 @@
 #### #TODO
 
+ - [ ] Add animation to the progress bar in between updates
+
+ - [ ] Prevent default on audio.js should be together with the key relation data, not in code
+
  - [ ] Add song time selection with number bar
 
  - [ ] Create a bar to hold aditional icons and move the return icon to it
