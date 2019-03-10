@@ -1,7 +1,5 @@
 #### #TODO
 
- - [ ] Create a bar to hold aditional icons and move the return icon to it
-
  - [ ] Add the option to download single file or entire folder (zip.js or something like that)
 
  - [ ] Add repo (android command) manifest for integrating both web audio projects

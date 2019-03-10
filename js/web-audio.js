@@ -118,10 +118,17 @@ const extractTypeList = (listItems, typeToExtract) => {
     return typeListExtracted;
 };
 
-// callback functions for done() fail() always() respectively for the ajax requests
-// each must receive json as input
-const triCallback = (firstCall, secondCall, thirdCall) => {
-    return [firstCall, secondCall, thirdCall];
+const findNotDirs = (listData) => {
+
+    let nonDirList = [];
+
+    // iterate the list and return a list with the non dir types
+    for (let i = 0; i < listData.length; ++i)
+        if (listData[i][2] != possibleFileTypes[0])
+            nonDirList.push([listData[0], listData[1]]);
+
+    return nonDirList;
+
 };
 
 /***********************
@@ -828,6 +835,34 @@ function assignIconBarClicks() {
     $(iconBarSettings).click(() => {});
     $(iconBarEqualizer).click(() => {});
 };
+
+/***********
+ * Zipping *
+ ***********/
+
+function procressZIPFolder() {
+
+    // get only the files
+    let fileList = findNotDirs(listingData.loaded);
+
+    // check if there are any files at all
+    if (fileList.length < 1) {
+        warningFn("There aren't any files in this folder");
+        return;
+    }
+
+    // download the files
+    downloadZIPFiles(fileList)
+
+};
+
+function downloadZIPFiles(fileNamePathList) {
+    warningFn("Zipping not implemented");
+};
+
+/********
+ * Init *
+ ********/
 
 $(document).ready(function(){
 
