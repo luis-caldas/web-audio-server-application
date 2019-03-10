@@ -74,6 +74,7 @@ var webPlayer = {
         comma: 188,
         period: 190
     },
+    codeKeyPrevention: ["upArrow", "downArrow", "leftArrow", "rightArrow"],
     keyFunctionRelation: {
         playpause: "k",
         next: "o",
@@ -153,6 +154,11 @@ webPlayer.playlistLoaded = function() {
 
 webPlayer.getCode = function(functionName) {
     return webPlayer.codeKeyRelation[webPlayer.keyFunctionRelation[functionName]];
+};
+
+webPlayer.preventIfNeeded = function(keyFunctionName, eventNow) {
+    if (webPlayer.codeKeyPrevention.indexOf(webPlayer.keyFunctionRelation[keyFunctionName]) > -1)
+        eventNow.preventDefault();
 };
 
 webPlayer.playPause = function() {
@@ -419,33 +425,40 @@ webPlayer.buttonPressVolume = function() {
 webPlayer.keyPressFunction = function(keypressEvent) {
     switch (keypressEvent.which) {
         case webPlayer.getCode("playpause"):
+            webPlayer.preventIfNeeded("playpause", keypressEvent);
             webPlayer.playPause();
             break;
         case webPlayer.getCode("next"):
+            webPlayer.preventIfNeeded("next", keypressEvent);
             webPlayer.next();
             break;
         case webPlayer.getCode("previous"):
+            webPlayer.preventIfNeeded("previous", keypressEvent);
             webPlayer.previous();
             break;
         case webPlayer.getCode("forward10"):
+            webPlayer.preventIfNeeded("forward10", keypressEvent);
             webPlayer.changeTime(10);
             break;
         case webPlayer.getCode("rewind10"):
+            webPlayer.preventIfNeeded("rewind10", keypressEvent);
             webPlayer.changeTime(-10);
             break;
         case webPlayer.getCode("forward5"):
+            webPlayer.preventIfNeeded("forward5", keypressEvent);
             webPlayer.changeTime(5);
             break;
         case webPlayer.getCode("rewind5"):
+            webPlayer.preventIfNeeded("rewind5", keypressEvent);
             webPlayer.changeTime(-5);
             break;
         case webPlayer.getCode("volumeup10"):
-            keypressEvent.preventDefault();
+            webPlayer.preventIfNeeded("volumeup10", keypressEvent);
             webPlayer.changeVolume(10);
             webPlayer.updateVolume();
             break;
         case webPlayer.getCode("volumedown10"):
-            keypressEvent.preventDefault();
+            webPlayer.preventIfNeeded("volumedown10", keypressEvent);
             webPlayer.changeVolume(-10);
             webPlayer.updateVolume();
             break;
