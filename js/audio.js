@@ -207,9 +207,9 @@ webPlayer.updateList = function(namePathCoupleList) {
 };
 
 webPlayer.consumeQueue = async function() {
-    webPlayer.musicChangedCallback();
     webPlayer.audioTagDOM.src = webPlayer.srcChangeQueue.pop();
     webPlayer.srcChangeQueue = [];
+    webPlayer.musicChangedCallback();
     webPlayer.audioTagDOM.play();
 };
 
@@ -302,6 +302,10 @@ webPlayer.previous = function(respectRepeat) {
         default:
     }
 
+};
+
+webPlayer.getSourceNow = function() {
+    return webPlayer.audioTagDOM.src;
 };
 
 webPlayer.audioEnded = function() {

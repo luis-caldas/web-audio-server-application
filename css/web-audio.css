@@ -305,19 +305,19 @@ audio#main-audio {
  **********************/
 
 .rdd-tl {
-    border-top-left-radius: .25rem;
+    border-top-left-radius: .25rem !important;
 }
 
 .rdd-tr {
-    border-top-right-radius: .25rem;
+    border-top-right-radius: .25rem !important;
 }
 
 .rdd-bl {
-    border-bottom-left-radius: .25rem;
+    border-bottom-left-radius: .25rem !important;
 }
 
 .rdd-br {
-    border-bottom-right-radius: .25rem;
+    border-bottom-right-radius: .25rem !important;
 }
 
 /***************
@@ -338,6 +338,21 @@ audio#main-audio {
     position: absolute;
     transform: translateY(-50%);
     top: 50%;
+}
+
+/************
+ * Icon bar *
+ ************/
+
+.icon-bar-insides {
+    display: flex;
+}
+
+.icon-bar-button {
+    width: 3rem;
+    border-radius: 0;
+    text-align: center !important;
+    flex: 1;
 }
 
 /***********

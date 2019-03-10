@@ -34,7 +34,7 @@ const timeouts = {
 // audio tag identifier
 const mainAudioTag = "audio#main-audio";
 const mainListTag = "div#main-lister";
-const returnButtonTag = "a#return-button";
+const returnButtonTag = "div#return-button";
 const pathShowTag = "div#path-text-input";
 const loadingTag = "div#loading-block";
 const audioTextTag = "div.audio-playing-text div.text-input";
@@ -45,6 +45,10 @@ const volumeProgressBarTag = "div#volume-progress input#volume-range";
 const modalTag = "div#main-modal";
 const modalTitleTag = "#modal-title";
 const modalTextTag = "div#warning-modal";
+const iconBarDownloadFile = "a#download-file";
+const iconBarDownloadZIP = "div#download-folder";
+const iconBarSettings = "div#settings";
+const iconBarEqualizer = "div#equalizer";
 
 const tagClasses = "simple-tag";
 
@@ -293,7 +297,11 @@ function updateChangeSong() {
     // update the player text
     $(audioTextTag).html(webPlayer.playingName);
 
+    // check the audio text overflow
     if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
+
+    // change the download link reference
+    $(iconBarDownloadFile).attr("href", webPlayer.getSourceNow());
 
 }
 
@@ -772,6 +780,18 @@ function onKeyPress(keypressEvent) {
     }
 };
 
+/***************
+ * Icon clicks *
+ ***************/
+
+function downloadFileIconClicked(event) {
+    // check if there is any href at the link
+    if ($(iconBarDownloadFile).attr("href") === "") {
+        event.preventDefault();
+        warningFn("There is no file loaded into player");
+    }
+};
+
 /************************
  * First time execution *
  ************************/
@@ -802,6 +822,13 @@ function assignAudioPlayerButtonsToObject() {
 
 };
 
+function assignIconBarClicks() {
+    $(iconBarDownloadFile).click(downloadFileIconClicked);
+    $(iconBarDownloadZIP).click(() => {});
+    $(iconBarSettings).click(() => {});
+    $(iconBarEqualizer).click(() => {});
+};
+
 $(document).ready(function(){
 
     // first buffer state for the back button
@@ -816,6 +843,9 @@ $(document).ready(function(){
 
     // attach function to return button
     $(returnButtonTag).click(returnButton);
+
+    // attach the click events to the icon bar
+    assignIconBarClicks();
 
     // attach the audio tag to the webplayer
     webPlayer.audioTagDOM = $(mainAudioTag)[0];  // must be the real dom
