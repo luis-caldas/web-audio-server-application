@@ -67,6 +67,16 @@ var webPlayer = {
         i: 73,
         l: 76,
         j: 74,
+        1: 49,
+        2: 50,
+        3: 51,
+        4: 52,
+        5: 53,
+        6: 54,
+        7: 55,
+        8: 56,
+        9: 57,
+        0: 48,
         leftArrow: 37,
         rightArrow: 39,
         upArrow: 38,
@@ -84,7 +94,17 @@ var webPlayer = {
         forward5: "period",
         rewind5: "comma",
         volumeup10: "upArrow",
-        volumedown10: "downArrow"
+        volumedown10: "downArrow",
+        set1: 1,
+        set2: 2,
+        set3: 3,
+        set4: 4,
+        set5: 5,
+        set6: 6,
+        set7: 7,
+        set8: 8,
+        set9: 9,
+        set0: 0
     },
 
     // function that will be called on music change
@@ -461,6 +481,46 @@ webPlayer.keyPressFunction = function(keypressEvent) {
             webPlayer.preventIfNeeded("volumedown10", keypressEvent);
             webPlayer.changeVolume(-10);
             webPlayer.updateVolume();
+            break;
+        case webPlayer.getCode("set1"):
+            webPlayer.preventIfNeeded("set1", keypressEvent);
+            webPlayer.changePercentTime(10);
+            break;
+        case webPlayer.getCode("set2"):
+            webPlayer.preventIfNeeded("set2", keypressEvent);
+            webPlayer.changePercentTime(20);
+            break;
+        case webPlayer.getCode("set3"):
+            webPlayer.preventIfNeeded("set3", keypressEvent);
+            webPlayer.changePercentTime(30);
+            break;
+        case webPlayer.getCode("set4"):
+            webPlayer.preventIfNeeded("set4", keypressEvent);
+            webPlayer.changePercentTime(40);
+            break;
+        case webPlayer.getCode("set5"):
+            webPlayer.preventIfNeeded("set5", keypressEvent);
+            webPlayer.changePercentTime(50);
+            break;
+        case webPlayer.getCode("set6"):
+            webPlayer.preventIfNeeded("set6", keypressEvent);
+            webPlayer.changePercentTime(60);
+            break;
+        case webPlayer.getCode("set7"):
+            webPlayer.preventIfNeeded("set7", keypressEvent);
+            webPlayer.changePercentTime(70);
+            break;
+        case webPlayer.getCode("set8"):
+            webPlayer.preventIfNeeded("set8", keypressEvent);
+            webPlayer.changePercentTime(80);
+            break;
+        case webPlayer.getCode("set9"):
+            webPlayer.preventIfNeeded("set9", keypressEvent);
+            webPlayer.changePercentTime(90);
+            break;
+        case webPlayer.getCode("set0"):
+            webPlayer.preventIfNeeded("set0", keypressEvent);
+            webPlayer.changePercentTime(0);
             break;
         default:
     }
