@@ -116,7 +116,7 @@ audio#main-audio {
  **************/
 
 .sticky-top {
-    max-width: 700px
+    max-width: 700px;
 }
 
 .sticky-top .btn {
@@ -206,6 +206,7 @@ audio#main-audio {
 .progress {
     cursor: pointer;
     background-color: #373737;
+    height: 1.5rem;
 }
 
 .progress-bar {
@@ -225,7 +226,7 @@ audio#main-audio {
 }
 
 #audio-progress {
-    height: 2.5rem;
+    height: 3rem;
     flex: 1;
 }
 
@@ -278,12 +279,33 @@ audio#main-audio {
     padding-right: 1rem;
 }
 
-#download-progress-bar {
-    background-color: #6C6C6C;
+.progress.download-progress {
+    cursor: default !important;
 }
 
-#download-text-input {
-    font-size: .875rem;
+#download-progress-bar {
+    background-color: #E0E0E0;
+    position: relative;
+    font-size: .75rem;
+    overflow: visible !important;
+}
+
+#download-progress-bar:before {
+    color: #1A1A1A;
+    position: absolute;
+    right: .375rem;
+    font-family: icon-font;
+    content: "\f001";
+    animation: loading-spin 4s infinite;
+}
+
+#download-progress-bar:after {
+    color: #E0E0E0;
+    position: absolute;
+    right: -1.125rem;
+    font-family: icon-font;
+    content: "\f001";
+    animation: loading-spin 4s infinite;
 }
 
 /***************
@@ -378,6 +400,7 @@ audio#main-audio {
 
 .icon-bar-button {
     width: 3rem;
+    padding: 1rem 1rem;
     border-radius: 0;
     text-align: center !important;
     flex: 1;
@@ -403,6 +426,10 @@ audio#main-audio {
 }
 
 .btn-path-bar {
+    padding: 1rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .3rem;
     background-color: #151515;
     color: #E0E0E0 !important;
     cursor: default !important;
@@ -412,6 +439,22 @@ audio#main-audio {
     background-color: #151515;
     cursor: default !important;
     color: #E0E0E0 !important;
+}
+
+/*******************
+ * Dynamic buttons *
+ *******************/
+
+.btn-list {
+    padding: 1rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: .3rem;
+}
+
+.parent-icon-link-inside {
+    font-size: 1rem;
+    padding-right: 1.5rem;
 }
 
 /*********************
@@ -463,22 +506,12 @@ audio#main-audio {
  * Responsiveness *
  ******************/
 
-.btn-responsive-m {
-    padding: 1rem 1rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    border-radius: .3rem;
-}
-
-.parent-icon-link-inside {
-    font-size: 1rem;
-    padding-right: 1.5rem;
-}
-
 /* @media (min-width: 576px) {} */
 /* @media (min-width: 768px) {} */
 @media (min-width: 992px) {
-    .btn-responsive-m {
+
+    /* Dynamic links */
+    .btn-list {
         padding: .25rem .5rem;
         font-size: .875rem;
         line-height: 1.5;
@@ -490,25 +523,54 @@ audio#main-audio {
         padding-right: .75rem;
     }
 
-    @keyframes my-marquee-keyframes {
-        0%   {
-            transform: translateX(0%);
-        }
-        40%  {
-            transform: translateX(0%);
-        }
-        80%  {
-            transform: translateX(-100%);
-        }
-        90% {
-            transform: translateX(-100%);
-        }
-        95% {
-            transform: translateX(0%);
-        }
-        100% {
-            transform: translateX(0%);
-        }
+    /* Path Bar */
+    .btn-path-bar {
+        padding: .25rem .5rem;
+        font-size: .875rem;
+        line-height: 1.5;
+        border-radius: .2rem;
+    }
+
+    /* Audio player */
+    .sticky-top {
+        max-width: 550px;
+    }
+
+    /* Icon bar */
+    .icon-bar-button {
+        padding: .25rem .25rem;
+    }
+
+    /* Audio player */
+    .audio-button {
+        padding: .25rem .25rem;
+    }
+
+    .audio-playing-text {
+        font-size: .875rem;
+    }
+
+    #audio-progress {
+        height: 2rem;
+    }
+
+    /* Progress bars */
+    .progress {
+        height: 1rem;
+    }
+
+    #download-progress-bar {
+        font-size: .5rem;
+    }
+    #download-progress-bar:before {
+        right: .25rem;
+    }
+    #download-progress-bar:after {
+        right: -.75rem;
+    }
+
+    #download-text-input {
+        font-size: .875rem;
     }
 
 }
@@ -539,23 +601,19 @@ audio#main-audio {
 }
 
 .loading-anim {
-    animation: loading-spin 4s cubic-bezier(0.05, 0.78, 0.53, 0.83) infinite;
+    animation: loading-spin 4s infinite;
 }
 
 @keyframes loading-spin {
     0% {
-        transform: rotate(0deg);
+        transform: rotate(0);
+        animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
     }
-    20% {
-        transform: rotate(-45deg);
-    }
-    80% {
-        transform: rotate(360deg);
-    }
-    95% {
-        transform: rotate(350deg);
+    50% {
+        transform: rotate(900deg);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
     100% {
-        transform: rotate(360deg);
+        transform: rotate(1800deg);
     }
 }

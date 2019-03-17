@@ -1,6 +1,6 @@
 #### #TODO
 
- - [ ] Fix all responsiveness (buttons specially)
+ - [ ] Code refactor and bug hunt
 
  - [ ] Add repo (android command) manifest for integrating both web audio projects
 

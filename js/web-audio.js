@@ -492,7 +492,7 @@ function buildSingleLinkToDOM(typeOfLink, linkName, linkIndex, linkPath, linkOnC
     // add unique type class
     newA.addClass("btn");
     newA.addClass("btn-mine");
-    newA.addClass("btn-responsive-m");
+    newA.addClass("btn-list");
 
     // add onclick function
     newA.click(linkOnClickFunction);
@@ -815,7 +815,7 @@ function updateDownloadBarText(textDownload) {
 };
 
 function zeroDownloadBar() {
-    $(downloadBarActive).width(0 + "%");
+    $(downloadBarActive).stop().width(0 + "%");
 };
 
 function showDownloadBar() {
@@ -877,8 +877,6 @@ function downloadPathIconClicked() {
         return;
     }
 
-    isDownloading = true;
-
     // acquire the list of all the files in this folder
     let itemsList = findNotDirs(listingData.loaded);
     let pathChosen = listingData.path;
@@ -890,6 +888,8 @@ function downloadPathIconClicked() {
         warningFn("This folder does not contain files");
         return;
     }
+
+    isDownloading = true;
 
     // create array to hold the blobs
     let blobArray = [];
