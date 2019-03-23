@@ -38,6 +38,9 @@ var webPlayer = {
     volume: 100.0,
     volumeLastState: null,
 
+    // minimum time passed for reseting song instead of going to previous
+    previousResetSongTime: 10,  // in seconds
+
     // add a queue for changing the audio source code
     srcChangeQueue: [],
     srcLastConsumed: null,
@@ -275,6 +278,12 @@ webPlayer.next = function(respectRepeat = false) {
 
 webPlayer.previous = function(respectRepeat) {
     if (!webPlayer.playlistLoaded()) return;
+
+    if (webPlayer.audioTagDOM.currentTime > webPlayer.previousResetSongTime) {
+        webPlayer.audioTagDOM.currentTime = 0;
+        return;
+    }
+
 
     let newIndex = 0;
     let respectedCase = respectRepeat ?
