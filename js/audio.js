@@ -44,6 +44,8 @@ var webPlayer = (function(){
         if (!playlistLoaded()) return;
         audioTagDOM.currentTime += changeOffset;
     };
+
+
     function updateList(namePathCoupleList) {
         player.list = namePathCoupleList;
     };
@@ -114,7 +116,8 @@ var webPlayer = (function(){
      * Audio HTML5 events handling *
      *******************************/
 
-    function audioEnded() { change(1, true); };
+    function audioEnded() { changeTrack(1, true); };
+    // send the music change callback to the page
     function durationChange() {
 
         // initialize some flags and vars
@@ -184,7 +187,7 @@ var webPlayer = (function(){
         // rotation of states
         playerStates[stateName].state = utils.misc.containExtrapolation(playerStates[stateName].state + 1, maxStates);
     };
-    function change(changeNumber, automaticChange = false) {
+    function changeTrack(changeNumber, automaticChange = false) {
 
         // check if it should run
         if (!playlistLoaded()) return;
@@ -237,10 +240,44 @@ var webPlayer = (function(){
             set5: 5, set6: 6, set7: 7, set8: 8, set9: 9
         },
         // which keys should have its normal action prevented by name
-        prevention: ["upArrow", "downArrow", "leftArrow", "rightArrow"]
+        prevention: ["upArrow", "downArrow", "leftArrow", "rightArrow"],
+        // function of each key
+        function: {
+            playpause:      function() { playPause(); },
+            next:           function() { changeTrack(1); },
+            previous:       function() { changeTrack(-1); },
+            forward10:      function() { changeTime(10); },
+            rewind10:       function() { changeTime(-10); },
+            forward5:       function() { changeTime(5); },
+            rewind5:        function() { changeTime(-5); },
+            volumeup10:     function() { changeVolume(10); updateVolume(); },
+            volumedown10:   function() { changeVolume(-10); updateVolume(); },
+            set0:           function() { changePercentTime(0); },
+            set1:           function() { changePercentTime(10); },
+            set2:           function() { changePercentTime(20); },
+            set3:           function() { changePercentTime(30); },
+            set4:           function() { changePercentTime(40); },
+            set5:           function() { changePercentTime(50); },
+            set6:           function() { changePercentTime(60); },
+            set7:           function() { changePercentTime(70); },
+            set8:           function() { changePercentTime(80); },
+            set9:           function() { changePercentTime(90); }
+        }
+    };
+    // find name from key number
+    function nameFromKeyNumber(number) {
+
+        // get the key from the name relation object
+        let nameList = Object.keys(codeKey.nameRelation);
+
+        // iterate and find the name
+        for (let i = 0; i < nameList.length; ++i)
+            if (codeKey.relation[codeKey.nameRelation[nameList[i]]] == number) return nameList[i];
+
+        // nothing found
+        return null;
     };
     // function to acquire the code of the name
-    function getCode(functionName) { return codeKey.relation[codeKey.nameRelation[functionName]]; };
     function preventIfNeeded(keyName, eventGiven) {
         if (codeKey.prevention.indexOf(codeKey.nameRelation[keyName]) > -1) eventGiven.preventDefault();
     };
@@ -263,8 +300,8 @@ var webPlayer = (function(){
 
         playPause: function() { playPause(); },
 
-        previous: function() { change(-1); },
-        next:     function() { change(1);  },
+        previous: function() { changeTrack(-1); },
+        next:     function() { changeTrack(1);  },
 
         volume: function() {
             if (volume.val != 0) {
@@ -278,86 +315,18 @@ var webPlayer = (function(){
         },
 
         keyPress: function(keypressEvent) {
-            switch (keypressEvent.which) {
-                case getCode("playpause"):
-                    preventIfNeeded("playpause", keypressEvent);
-                    playPause();
-                    break;
-                case getCode("next"):
-                    preventIfNeeded("next", keypressEvent);
-                    change(1);
-                    break;
-                case getCode("previous"):
-                    preventIfNeeded("previous", keypressEvent);
-                    change(-1);
-                    break;
-                case getCode("forward10"):
-                    preventIfNeeded("forward10", keypressEvent);
-                    changeTime(10);
-                    break;
-                case getCode("rewind10"):
-                    preventIfNeeded("rewind10", keypressEvent);
-                    changeTime(-10);
-                    break;
-                case getCode("forward5"):
-                    preventIfNeeded("forward5", keypressEvent);
-                    changeTime(5);
-                    break;
-                case getCode("rewind5"):
-                    preventIfNeeded("rewind5", keypressEvent);
-                    changeTime(-5);
-                    break;
-                case getCode("volumeup10"):
-                    preventIfNeeded("volumeup10", keypressEvent);
-                    changeVolume(10);
-                    updateVolume();
-                    break;
-                case getCode("volumedown10"):
-                    preventIfNeeded("volumedown10", keypressEvent);
-                    changeVolume(-10);
-                    updateVolume();
-                    break;
-                case getCode("set1"):
-                    preventIfNeeded("set1", keypressEvent);
-                    changePercentTime(10);
-                    break;
-                case getCode("set2"):
-                    preventIfNeeded("set2", keypressEvent);
-                    changePercentTime(20);
-                    break;
-                case getCode("set3"):
-                    preventIfNeeded("set3", keypressEvent);
-                    changePercentTime(30);
-                    break;
-                case getCode("set4"):
-                    preventIfNeeded("set4", keypressEvent);
-                    changePercentTime(40);
-                    break;
-                case getCode("set5"):
-                    preventIfNeeded("set5", keypressEvent);
-                    changePercentTime(50);
-                    break;
-                case getCode("set6"):
-                    preventIfNeeded("set6", keypressEvent);
-                    changePercentTime(60);
-                    break;
-                case getCode("set7"):
-                    preventIfNeeded("set7", keypressEvent);
-                    changePercentTime(70);
-                    break;
-                case getCode("set8"):
-                    preventIfNeeded("set8", keypressEvent);
-                    changePercentTime(80);
-                    break;
-                case getCode("set9"):
-                    preventIfNeeded("set9", keypressEvent);
-                    changePercentTime(90);
-                    break;
-                case getCode("set0"):
-                    preventIfNeeded("set0", keypressEvent);
-                    changePercentTime(0);
-                    break;
+
+            // extract name from code
+            let nameNow = nameFromKeyNumber(keypressEvent.which);
+
+            if (nameNow !== null) {
+                // prevent if needed the key
+                preventIfNeeded(nameNow, keypressEvent);
+
+                // run needed function
+                codeKey.function[nameNow]();
             }
+
         }
     };
 

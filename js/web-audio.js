@@ -607,7 +607,6 @@ function clearVisualList() {
  **********************/
 
 function playPauseButtonUpdate() {
-    console.log();
     if (webPlayer.getVar.paused()) $("#playpause").html(iconFontRelation["play"]);
     else $("#playpause").html(iconFontRelation["pause"]);
 }
