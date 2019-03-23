@@ -284,7 +284,6 @@ webPlayer.previous = function(respectRepeat) {
         return;
     }
 
-
     let newIndex = 0;
     let respectedCase = respectRepeat ?
         webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat] :
