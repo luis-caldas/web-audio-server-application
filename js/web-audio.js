@@ -281,7 +281,13 @@ function musClick(itemClicked) {
     for (let i = 0; i < listPathNameCoupleAudio.length; ++i)
         listPathNameCoupleAudio[i][1] = buildFullUrl(myServer, "file", { path: listPathNameCoupleAudio[i][1] });
 
-    webPlayer.updateListPlay(listPathNameCoupleAudio, itemClicked[0]);
+    // extract the list of names
+    let nameList = utils.misc.extractIndexFromBidimensionalArray(listPathNameCoupleAudio, 0);
+
+    // play it with index
+    let indexOfSong = nameList.indexOf(itemClicked[0]);
+
+    webPlayer.updateListAndPlay(listPathNameCoupleAudio, indexOfSong);
 };
 
 function imgClick(itemClicked) { /* openInNewTab(buildFullUrl(myServer, "file", { path: itemClicked[1] })) */ };
@@ -312,13 +318,19 @@ function returnPathListing() {
 
 };
 
-function updateChangeSong() {
+function updateChangeSong(songName, songPath) {
+
+    // store the variables locally
+    listingData["now"] = {
+        name: songName,
+        path: songPath
+    };
 
     // update the title
-    $("title").html(webPlayer.getVar.name());
+    $("title").html(songName);
 
     // update the player text
-    $(audioTextTag).html(webPlayer.getVar.name());
+    $(audioTextTag).html(songName);
 
     // check the audio text overflow
     if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
@@ -606,15 +618,14 @@ function clearVisualList() {
  * Audio icon changes *
  **********************/
 
-function playPauseButtonUpdate() {
-    if (webPlayer.getVar.paused()) $("#playpause").html(iconFontRelation["play"]);
-    else $("#playpause").html(iconFontRelation["pause"]);
+function playPauseButtonUpdate(boolState) {
+    $("#playpause").html(iconFontRelation[boolState ? "play" : "pause"]);
 }
 
-function updateButton(buttonName) {
+function updateButton(buttonName, buttonState) {
     switch (buttonName) {
         case "playpause":
-            playPauseButtonUpdate();
+            playPauseButtonUpdate(buttonState);
             break;
         default:
     }
@@ -689,7 +700,7 @@ function clickedProgressBar(event) {
     let clickedPercentage = horizontalClickPosition / $(this).width() * 100;
 
     // set the volume and update
-    webPlayer.changePercentTime(clickedPercentage);
+    webPlayer.setExactTimePercentage(clickedPercentage);
 };
 
 /****************
@@ -742,17 +753,17 @@ function updateVolumeBackgroundColor(rangeTag, percentageValue, colorBefore, col
     `);
 };
 
-function musicVolumeUpdate(currentTime, totalTime) {
+function musicVolumeUpdate(currentVolume, totalVolume) {
 
     // get the value
-    let valueNowPercentage = currentTime / totalTime * 100;
+    let valueNowPercentage = currentVolume / totalVolume * 100;
     let valueNow = translatePercentageToRange(valueNowPercentage);
 
     // set the new value
     $(volumeProgressBarTag).val(valueNow);
 
     // update the icon
-    updateVolumeIcon(currentTime, totalTime);
+    updateVolumeIcon(currentVolume, totalVolume);
 
     // update the background color of the input range
     updateVolumeBackgroundColor(
@@ -769,7 +780,7 @@ function volumeBarClicked() {
     let valueNowPercentage = translateRangeToPercentage($(volumeProgressBarTag).val());
 
     // set the volume and update
-    webPlayer.setExactVolume(valueNowPercentage);
+    webPlayer.setExactVolumePercentage(valueNowPercentage);
 
 };
 
@@ -838,7 +849,7 @@ function downloadFileIconClicked() {
         return;
     }
 
-    let sourceNow = webPlayer.getVar.source();
+    let sourceNow = listingData.now.path;
 
     // check if the source is valid
     if (sourceNow === "") {
@@ -857,7 +868,7 @@ function downloadFileIconClicked() {
         (response) => {
             isDownloading = false;
             closeDownloadBar();
-            saveAs(response, webPlayer.getVar.name());
+            saveAs(response, listingData.now.name);
         },
         () => {
             isDownloading = false;

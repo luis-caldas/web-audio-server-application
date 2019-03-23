@@ -55,7 +55,7 @@ const utils = (function(){
             return array;
         },
 
-        index: function(totalArrayLength, indexToMaintain) {
+        indexToBeginning: function(totalArrayLength, indexToMaintain) {
 
             // create array of indexes
             let artificialIndexes = [];
@@ -64,9 +64,14 @@ const utils = (function(){
             // scramble the artificial indexes
             let shuffledArray = this.normal(artificialIndexes);
 
-            // return the mantained index to its rightfull location
-            shuffledArray[shuffledArray.indexOf(indexToMaintain)] = shuffledArray[indexToMaintain];
-            shuffledArray[indexToMaintain] = indexToMaintain;
+            // find previous index
+            let previousIndexLocation = shuffledArray.indexOf(indexToMaintain);
+
+            // remove it
+            shuffledArray.splice(previousIndexLocation, 1);
+
+            // add it to the beginning
+            shuffledArray.unshift(indexToMaintain);
 
             return shuffledArray;
         }

@@ -44,39 +44,27 @@ var webPlayer = (function(){
         if (!playlistLoaded()) return;
         audioTagDOM.currentTime += changeOffset;
     };
-
-
-    function updateList(namePathCoupleList) {
-        player.list = namePathCoupleList;
-    };
-    function playAudio(filePath) {
-        updateAndConsumeQueue(filePath);
-    };
-    function playIndex() {
+    function updateByIndex(shouldPlay = true) {
         // check if shuffle is on and get specific index
         let indexToPlay = (playerStates.shuffle.possible[playerStates.shuffle.state] == "on") ?
             player.listShuffledIndexes[player.index]: player.index;
 
         // assign the needed stuff
-        player.name = player.list[player.index][0];
-        playAudio(player.list[player.index][1]);
+        player.name = player.list[indexToPlay][0];
+        updateAndConsumeQueue(player.list[indexToPlay][1], shouldPlay);
     };
     // update the player list
-    function updateListPlay(namePathCoupleList, songName) {
+    function updateListPlay(namePathCoupleList, songIndex) {
 
         // update the local list
-        updateList(namePathCoupleList);
-
-        // extract the list of names
-        let nameList = utils.misc.extractIndexFromBidimensionalArray(namePathCoupleList, 0);
-
+        player.list = namePathCoupleList;
         // play it with index
-        player.index = nameList.indexOf(songName);
+        player.index = songIndex;
 
         // check if it is needed to shuffle the indexes
-        createShuffledPlaylistIfNeeded(player.index);
+        createShuffledPlaylistIfNeeded();
 
-        playIndex();
+        updateByIndex();
     }
 
     /*****************
@@ -90,10 +78,12 @@ var webPlayer = (function(){
     };
     // consume path queue, callback and play song
     function consumeQueue() {
-        audioTagDOM.src = sourceQueue.queue.pop();
+        // [filePath, should the file be played as well]
+        let tupleData = sourceQueue.queue.pop();
+        audioTagDOM.src = tupleData[0];
         sourceQueue.queue = [];
-        changeCallbacks.music();
-        audioTagDOM.play();
+        changeCallbacks.music(player.name, tupleData[0]);
+        if (tupleData[1]) audioTagDOM.play();
     };
     // check if queue can be consumed already and return a success (if consumed)
     function consumeQueueIfTimed() {
@@ -104,8 +94,8 @@ var webPlayer = (function(){
         } else return false;
     };
     // update and consume queue if needed
-    function updateAndConsumeQueue(filePath) {
-        sourceQueue.queue.push(filePath);
+    function updateAndConsumeQueue(filePath, shouldPlay) {
+        sourceQueue.queue.push([filePath, shouldPlay]);
         if (!consumeQueueIfTimed()) setTimeout(() => {
             if (sourceQueue.queue.length > 0)
                 consumeQueueIfTimed();
@@ -135,7 +125,7 @@ var webPlayer = (function(){
 
     };
     function timeUpdate() { durationChange(); };
-    function playPauseEvent() { changeCallbacks.icon("playpause"); };
+    function playPauseEvent() { changeCallbacks.icon("playpause", audioTagDOM.paused); };
     function addAudioTagListeners() {
         audioTagDOM.onended = audioEnded;
         audioTagDOM.ontimeupdate = timeUpdate;
@@ -144,24 +134,42 @@ var webPlayer = (function(){
         audioTagDOM.onplay = playPauseEvent;
     };
 
-    // volume data
+    /***********************
+     * Volume data control *
+     ***********************/
+
     var volume = {
         val: utils.startingVolume,
         lastVal: null
+    };
+    function updateVolume() {
+        audioTagDOM.volume = (volume.val / 100);
+        changeCallbacks.musicVolume(volume.val, 100);
     };
     function changeVolume(changeOffset) {
         volume.val += changeOffset;
         // check the overflows
         volume.val = utils.misc.checkOverflow(volume.val, 0, 100);
+
+        updateVolume();
     };
     function setExactVolume(newVolume) {
         volume.val = newVolume;
         // check the overflows
         volume.val = utils.misc.checkOverflow(volume.val, 0, 100);
+
+        updateVolume();
     };
-    function updateVolume() {
-        audioTagDOM.volume = (volume.val / 100);
-        changeCallbacks.musicVolume(volume.val, 100);
+    function volumeStoreChange() {
+        if (volume.val != 0) {
+            volume.lastVal = volume.val;
+            volume.val = 0;
+        } else if (volume.lastVal != null) {
+            volume.val = volume.lastVal;
+            volume.lastVal = null;
+        }
+
+        updateVolume();
     };
 
     /********************
@@ -187,6 +195,15 @@ var webPlayer = (function(){
         // rotation of states
         playerStates[stateName].state = utils.misc.containExtrapolation(playerStates[stateName].state + 1, maxStates);
     };
+    function shuffleHit() {
+        rotateState("shuffle");
+        createShuffledPlaylistIfNeeded(true);
+        changeCallbacks.shuffle(playerStates.shuffle.possible[playerStates.shuffle.state]);
+    };
+    function repeatHit() {
+        rotateState("repeat");
+        changeCallbacks.repeat(playerStates.repeat.possible[playerStates.repeat.state]);
+    };
     function changeTrack(changeNumber, automaticChange = false) {
 
         // check if it should run
@@ -211,15 +228,15 @@ var webPlayer = (function(){
         if (chosenCase != "repeatOne")
             player.index = utils.misc.containExtrapolation(newIndex, player.list.length);
 
-        if (shouldPlay) playIndex();
+        updateByIndex(shouldPlay);
 
     };
-    function createShuffledPlaylistIfNeeded(saveIndex, buttonClick = false) {
+    function createShuffledPlaylistIfNeeded(buttonClick = false) {
         if (playerStates.shuffle.possible[playerStates.shuffle.state] == "on")
-            player.listShuffledIndexes = utils.shuffle.index(player.list.length, saveIndex);
+            player.listShuffledIndexes = utils.shuffle.indexToBeginning(player.list.length, player.index);
         else if (buttonClick && player.listShuffledIndexes.length > 0) {
             // normalize the index if changed before
-            player.index = player.listShuffledIndexes[player.index];
+            player.index = player.listShuffledIndexes[0];
         }
     };
 
@@ -250,8 +267,8 @@ var webPlayer = (function(){
             rewind10:       function() { changeTime(-10); },
             forward5:       function() { changeTime(5); },
             rewind5:        function() { changeTime(-5); },
-            volumeup10:     function() { changeVolume(10); updateVolume(); },
-            volumedown10:   function() { changeVolume(-10); updateVolume(); },
+            volumeup10:     function() { changeVolume(10); },
+            volumedown10:   function() { changeVolume(-10); },
             set0:           function() { changePercentTime(0); },
             set1:           function() { changePercentTime(10); },
             set2:           function() { changePercentTime(20); },
@@ -277,7 +294,7 @@ var webPlayer = (function(){
         // nothing found
         return null;
     };
-    // function to acquire the code of the name
+    // function to prevent a keys default action if it is needed
     function preventIfNeeded(keyName, eventGiven) {
         if (codeKey.prevention.indexOf(codeKey.nameRelation[keyName]) > -1) eventGiven.preventDefault();
     };
@@ -286,33 +303,18 @@ var webPlayer = (function(){
      * External events triggers *
      ****************************/
 
+    // events that are bound from the outside
     var externalEvents = {
 
-        shuffle: function() {
-            rotateState("shuffle");
-            createShuffledPlaylistIfNeeded(player.index, true);
-            changeCallbacks.shuffle(playerStates.shuffle.possible[playerStates.shuffle.state]);
-        },
-        repeat: function() {
-            rotateState("repeat");
-            changeCallbacks.repeat(playerStates.repeat.possible[playerStates.repeat.state]);
-        },
+        shuffle: function() { shuffleHit(); },
+        repeat: function() { repeatHit(); },
 
         playPause: function() { playPause(); },
 
         previous: function() { changeTrack(-1); },
         next:     function() { changeTrack(1);  },
 
-        volume: function() {
-            if (volume.val != 0) {
-                volume.lastVal = volume.val;
-                volume.val = 0;
-            } else if (volume.lastVal != null) {
-                volume.val = volume.lastVal;
-                volume.lastVal = null;
-            } else return;
-            updateVolume();
-        },
+        volume: function() { volumeStoreChange(); },
 
         keyPress: function(keypressEvent) {
 
@@ -335,17 +337,24 @@ var webPlayer = (function(){
      ****************************/
 
     // functions that will be called when a specific local event happens
+    // have to be assinged on the init
     var changeCallbacks = {
         // callback when the music source is changed
+        // [song_name]
         music: utils.misc.empty,
         // callback for when a icon is changed
+        // [string_identifying_the_button, button_state]
         icon: utils.misc.empty,
         // music progress and volume changed callback
         // for progress bars
+        // [current_time, total_time, buffe_time] (all in float seconds)
         musicProgress: utils.misc.empty,
+        // [volume_now, volume_total]
         musicVolume: utils.misc.empty,
         // shuffle and repeat callback
+        // [shuffle_state_string]
         shuffle: utils.misc.empty,
+        // [repeat_state_string]
         repeat: utils.misc.empty
     }
 
@@ -361,6 +370,8 @@ var webPlayer = (function(){
 
             // get the main audio tag dom from page
             audioTagDOM = audioDOM;
+            // add the local listeneds to the freshly acquired dom
+            addAudioTagListeners();
 
             // assing all specific callbacks
             // the input object must match the change callbacks in keys to be assigned
@@ -368,28 +379,15 @@ var webPlayer = (function(){
             for (let i = 0; i < changeCallbacksKeys.length; ++i)
                 changeCallbacks[changeCallbacksKeys[i]] = callbackFunctionsObject[changeCallbacksKeys[i]];
 
-            // add the local listeneds to the freshly acquired dom
-            addAudioTagListeners();
-
             // return the functions for button presses
             return externalEvents;
 
         },
 
-        // few mirror var fns
-        getVar: {
-            source: function() { return audioTagDOM.src; },
-            paused: function() { return audioTagDOM.paused; },
-            name:   function() { return player.name; }
-        },
-
         // available functions
-        updateListPlay: function() { updateListPlay.apply(null, arguments) },
-        changePercentTime: function() { changePercentTime.apply(null, arguments) },
-        setExactVolume: function(exactPercentage) {
-            setExactVolume(exactPercentage);
-            updateVolume();
-        },
+        updateListAndPlay:        function(listCouple, itemClicked) { updateListPlay(listCouple, itemClicked); },
+        setExactTimePercentage:   function(exactPercentage)         { changePercentTime(exactPercentage); },
+        setExactVolumePercentage: function(exactPercentage)         { setExactVolume(exactPercentage); }
 
     };
 
