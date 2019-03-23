@@ -1,32 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
 
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
+        <!-- Metadata and visual -->
         <meta name="description" content="Web Audio Server - Browse and play musics remotely">
         <meta name="author" content="Luis Caldas - luiscaldas.com">
-
         <meta name="theme-color" content="#101010" />
-
         <link rel="icon" href="images/favicon.png">
 
         <title>Web Audio</title>
 
-        <!-- Bootstrap core CSS -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Lightbox -->
-        <link href="css/lightbox.min.css" rel="stylesheet">
+        <link href="css/lib/bootstrap.min.css" rel="stylesheet"><!-- Bootstrap core CSS -->
+        <link href="css/lib/lightbox.min.css" rel="stylesheet"><!-- Lightbox -->
 
         <!-- My CSS files -->
         <link href="css/web-audio.css" rel="stylesheet">
-    </head>
 
+    </head>
     <body>
 
         <!-- Main audio tag used -->
@@ -152,24 +145,18 @@
             <div class="btn-group-vertical btn-block no-wrap" id="main-lister"></div>
         </div>
 
-        <!-- Bootstrap core JavaScript
-        ================================================== -->
-        <!-- Placed at the end of the document so the pages load faster -->
-        <script src="js/jquery.min.js"></script>
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Lightbox -->
-        <script src="js/lightbox.min.js"></script>
-
-        <!-- Blob file saver -->
-        <script src="js/file-saver.min.js"></script>
-
-        <!-- JSZip -->
-        <script src="js/jszip.min.js"></script>
+        <!-- JavaScript files in the end to load faster -->
+        <script src="js/lib/jquery.min.js"></script><!-- jQuery -->
+        <script src="js/lib/bootstrap.min.js"></script><!-- Boostrap -->
+        <script src="js/lib/lightbox.min.js"></script><!-- Lightbox -->
+        <script src="js/lib/file-saver.min.js"></script><!-- Blob file saver -->
+        <script src="js/lib/jszip.min.js"></script><!-- JSZip -->
 
         <!-- My script files -->
         <script src="js/config.js"></script>
+        <script src="js/header.js"></script>
         <script src="js/audio.js"></script>
         <script src="js/web-audio.js"></script>
+
     </body>
 </html>
