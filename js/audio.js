@@ -1,545 +1,429 @@
 "use strict";
 
-/*********
- * Utils *
- *********/
+/**************************
+ * HTML5 Audio Controller *
+ **************************/
 
-const extractIndexFromBidimensionalArray = (bidimensionalArray, index) => {
-    let tempArray = [];
-    for (let i = 0; i < bidimensionalArray.length; ++i)
-        tempArray.push(bidimensionalArray[i][index]);
-    return tempArray;
-};
-
-const emptyFunction = function() {};
-
-/***********
- * Objects *
- ***********/
-
-// web player class
-// for controlling the audio tag with html5 calls
-var webPlayer = {
-
-    /*************
-     * Variables *
-     *************/
-
-    // playlist list of urls
-    playingIndex: null,
-    playingName: null,
-    playlist: [],
-    playlistShuffledIndexes: [],
+var webPlayer = (function(){
 
     // dom of the chosen audio tag
-    audioTagDOM: null,
+    // must be set on page init
+    var audioTagDOM = null;
 
-    // volume
-    volume: 100.0,
-    volumeLastState: null,
+    /*******************
+     * Playing control *
+     *******************/
 
-    // minimum time passed for reseting song instead of going to previous
-    previousResetSongTime: 10,  // in seconds
+    // playlist list of urls
+    // player data and states
+    var player = {
+        index: null,
+        name: null,
+        list: [],
+        listShuffledIndexes: []
+    };
+    function playlistLoaded() { return player.list.length != 0; };
+    function playPause() {
+        // if nothing loaded block function
+        if (!playlistLoaded()) return;
 
-    // add a queue for changing the audio source code
-    srcChangeQueue: [],
-    srcLastConsumed: null,
-    srcConsimungInterval: 250,  // miliseconds
+        // pause or play
+        if (audioTagDOM.paused) audioTagDOM.play();
+        else audioTagDOM.pause();
+    };
+    function changePercentTime(newPercentage) {
+        if (!playlistLoaded()) return;
 
-    // few audio player states and its possibilities
-    playerStates: {
-        repeat: 1,
-        shuffle: 0
-    },
-    playerStatesPossibilities: {
-        repeat: [
-            "off",
-            "repeatAll",
-            "repeatOne"
-        ],
-        shuffle: [
-            "off",
-            "on"
-        ]
-    },
+        // get the new time from percentage
+        let timeNew = (newPercentage / 100) * audioTagDOM.duration;
+
+        // set the net current time
+        audioTagDOM.currentTime = timeNew;
+    };
+    function changeTime(changeOffset) {
+        if (!playlistLoaded()) return;
+        audioTagDOM.currentTime += changeOffset;
+    };
+    function updateList(namePathCoupleList) {
+        player.list = namePathCoupleList;
+    };
+    function playAudio(filePath) {
+        updateAndConsumeQueue(filePath);
+    };
+    function playIndex() {
+        // check if shuffle is on and get specific index
+        let indexToPlay = (playerStates.shuffle.possible[playerStates.shuffle.state] == "on") ?
+            player.listShuffledIndexes[player.index]: player.index;
+
+        // assign the needed stuff
+        player.name = player.list[player.index][0];
+        playAudio(player.list[player.index][1]);
+    };
+    // update the player list
+    function updateListPlay(namePathCoupleList, songName) {
+
+        // update the local list
+        updateList(namePathCoupleList);
+
+        // extract the list of names
+        let nameList = utils.misc.extractIndexFromBidimensionalArray(namePathCoupleList, 0);
+
+        // play it with index
+        player.index = nameList.indexOf(songName);
+
+        // check if it is needed to shuffle the indexes
+        createShuffledPlaylistIfNeeded(player.index);
+
+        playIndex();
+    }
+
+    /*****************
+     * Queue control *
+     *****************/
+
+    // queue for changing the audio source code
+    var sourceQueue = {
+        queue: [],
+        lastConsumed: null
+    };
+    // consume path queue, callback and play song
+    function consumeQueue() {
+        audioTagDOM.src = sourceQueue.queue.pop();
+        sourceQueue.queue = [];
+        changeCallbacks.music();
+        audioTagDOM.play();
+    };
+    // check if queue can be consumed already and return a success (if consumed)
+    function consumeQueueIfTimed() {
+        if (sourceQueue.lastConsumed === null || (Date.now() >= sourceQueue.lastConsumed + headers.player.srcConsimungInterval)) {
+            consumeQueue();
+            sourceQueue.lastConsumed = Date.now();
+            return true;
+        } else return false;
+    };
+    // update and consume queue if needed
+    function updateAndConsumeQueue(filePath) {
+        sourceQueue.queue.push(filePath);
+        if (!consumeQueueIfTimed()) setTimeout(() => {
+            if (sourceQueue.queue.length > 0)
+                consumeQueueIfTimed();
+        }, headers.player.srcConsimungInterval);
+    };
+
+    /*******************************
+     * Audio HTML5 events handling *
+     *******************************/
+
+    function audioEnded() { change(1, true); };
+    function durationChange() {
+
+        // initialize some flags and vars
+        let bufferEnd = 0, duration = 1;
+        let lastOfTimeRanges = audioTagDOM.buffered.length - 1;
+
+        // if there is a time range set it
+        if (lastOfTimeRanges >= 0) bufferEnd = audioTagDOM.buffered.end(lastOfTimeRanges);
+
+        // if there is a duration set it
+        if (audioTagDOM.duration) duration = audioTagDOM.duration;
+
+        // callback on the function
+        changeCallbacks.musicProgress(audioTagDOM.currentTime, duration, bufferEnd);
+
+    };
+    function timeUpdate() { durationChange(); };
+    function playPauseEvent() { changeCallbacks.icon("playpause"); };
+    function addAudioTagListeners() {
+        audioTagDOM.onended = audioEnded;
+        audioTagDOM.ontimeupdate = timeUpdate;
+        // audioTagDOM.onprogress = () => {};
+        audioTagDOM.onpause = playPauseEvent;
+        audioTagDOM.onplay = playPauseEvent;
+    };
+
+    // volume data
+    var volume = {
+        val: utils.startingVolume,
+        lastVal: null
+    };
+    function changeVolume(changeOffset) {
+        volume.val += changeOffset;
+        // check the overflows
+        volume.val = utils.misc.checkOverflow(volume.val, 0, 100);
+    };
+    function setExactVolume(newVolume) {
+        volume.val = newVolume;
+        // check the overflows
+        volume.val = utils.misc.checkOverflow(volume.val, 0, 100);
+    };
+    function updateVolume() {
+        audioTagDOM.volume = (volume.val / 100);
+        changeCallbacks.musicVolume(volume.val, 100);
+    };
+
+    /********************
+     * States and flags *
+     ********************/
+
+    // audio player states and its possibilities
+    var playerStates = {
+        repeat: {
+            state: headers.player.startingStates.repeat,
+            possible: [ "off", "repeatAll", "repeatOne" ],
+            default: 1
+        },
+        shuffle: {
+            state: headers.player.startingStates.shuffle,
+            possible: [ "off", "on" ]
+        }
+    };
+    function rotateState(stateName) {
+        // get the maximum number of states
+        let maxStates = playerStates[stateName].possible.length;
+
+        // rotation of states
+        playerStates[stateName].state = utils.misc.containExtrapolation(playerStates[stateName].state + 1, maxStates);
+    };
+    function change(changeNumber, automaticChange = false) {
+
+        // check if it should run
+        if (!playlistLoaded()) return;
+
+        // init the new index
+        let newIndex = player.index + changeNumber;
+
+        // flag if is should play after
+        let shouldPlay = true;
+
+        // check if we should respect the case of repeat
+        // or just use the default
+        let chosenCase = automaticChange ?
+            playerStates.repeat.possible[playerStates.repeat.state] :
+            playerStates.repeat.possible[playerStates.repeat.default];
+
+        // check if is the end of a playlist with the off repeat selected
+        if (chosenCase == "off" && newIndex >= player.list.length) shouldPlay = false;
+
+        // if is not repeat one update the index
+        if (chosenCase != "repeatOne")
+            player.index = utils.misc.containExtrapolation(newIndex, player.list.length);
+
+        if (shouldPlay) playIndex();
+
+    };
+    function createShuffledPlaylistIfNeeded(saveIndex, buttonClick = false) {
+        if (playerStates.shuffle.possible[playerStates.shuffle.state] == "on")
+            player.listShuffledIndexes = utils.shuffle.index(player.list.length, saveIndex);
+        else if (buttonClick && player.listShuffledIndexes.length > 0) {
+            // normalize the index if changed before
+            player.index = player.listShuffledIndexes[player.index];
+        }
+    };
 
     // relation of keys and codes
-    codeKeyRelation: {
-        k: 75,
-        o: 79,
-        i: 73,
-        l: 76,
-        j: 74,
-        1: 49,
-        2: 50,
-        3: 51,
-        4: 52,
-        5: 53,
-        6: 54,
-        7: 55,
-        8: 56,
-        9: 57,
-        0: 48,
-        leftArrow: 37,
-        rightArrow: 39,
-        upArrow: 38,
-        downArrow: 40,
-        comma: 188,
-        period: 190
-    },
-    codeKeyPrevention: ["upArrow", "downArrow", "leftArrow", "rightArrow"],
-    keyFunctionRelation: {
-        playpause: "k",
-        next: "o",
-        previous: "i",
-        forward10: "l",
-        rewind10: "j",
-        forward5: "period",
-        rewind5: "comma",
-        volumeup10: "upArrow",
-        volumedown10: "downArrow",
-        set1: 1,
-        set2: 2,
-        set3: 3,
-        set4: 4,
-        set5: 5,
-        set6: 6,
-        set7: 7,
-        set8: 8,
-        set9: 9,
-        set0: 0
-    },
+    var codeKey = {
+        // relation of key to the javascript key down code
+        relation: {
+            k: 75, o: 79, i: 73, l: 76, j: 74,
+            0: 48, 1: 49, 2: 50, 3: 51, 4: 52, 5: 53, 6: 54, 7: 55, 8: 56, 9: 57,
+            leftArrow: 37, rightArrow: 39, upArrow: 38, downArrow: 40, comma: 188, period: 190
+        },
+        // relation of names to local symbol for convenience
+        nameRelation: {
+            playpause: "k", next: "o", previous: "i",
+            forward10: "l", rewind10: "j", forward5: "period", rewind5: "comma",
+            volumeup10: "upArrow", volumedown10: "downArrow",
+            set0: 0, set1: 1, set2: 2, set3: 3, set4: 4,
+            set5: 5, set6: 6, set7: 7, set8: 8, set9: 9
+        },
+        // which keys should have its normal action prevented by name
+        prevention: ["upArrow", "downArrow", "leftArrow", "rightArrow"]
+    };
+    // function to acquire the code of the name
+    function getCode(functionName) { return codeKey.relation[codeKey.nameRelation[functionName]]; };
+    function preventIfNeeded(keyName, eventGiven) {
+        if (codeKey.prevention.indexOf(codeKey.nameRelation[keyName]) > -1) eventGiven.preventDefault();
+    };
 
-    // function that will be called on music change
-    musicChangedCallback: emptyFunction,
+    /****************************
+     * External events triggers *
+     ****************************/
 
-    // object with callbacks for icon change
-    iconChangeCallback: emptyFunction,
+    var externalEvents = {
 
-    // music progress and volume bars changed callback
-    musicProgressChangeCallback: emptyFunction,
-    musicVolumeChangeCallback: emptyFunction,
+        shuffle: function() {
+            rotateState("shuffle");
+            createShuffledPlaylistIfNeeded(player.index, true);
+            changeCallbacks.shuffle(playerStates.shuffle.possible[playerStates.shuffle.state]);
+        },
+        repeat: function() {
+            rotateState("repeat");
+            changeCallbacks.repeat(playerStates.repeat.possible[playerStates.repeat.state]);
+        },
 
-    // shuffle and repeat callback
-    shuffleChangeCallback: emptyFunction,
-    repeatChangeCallback: emptyFunction
+        playPause: function() { playPause(); },
 
-};
+        previous: function() { change(-1); },
+        next:     function() { change(1);  },
 
-/*************
- * Functions *
- *************/
+        volume: function() {
+            if (volume.val != 0) {
+                volume.lastVal = volume.val;
+                volume.val = 0;
+            } else if (volume.lastVal != null) {
+                volume.val = volume.lastVal;
+                volume.lastVal = null;
+            } else return;
+            updateVolume();
+        },
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function shuffle(array) {
-    let counter = array.length;
-
-    // while there are elements in the array
-    while (counter > 0) {
-
-        // pick a random index
-        let index = Math.floor(Math.random() * counter);
-
-        --counter;
-
-        // swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-}
-
-function shuffleIndex(totalArrayLength, indexToMaintain) {
-    // create array of indexes
-    let artificialIndexes = [];
-    for (let i = 0; i < totalArrayLength; ++i) artificialIndexes.push(i);
-
-    // scramble the artificial indexes
-    let shuffledArray = shuffle(artificialIndexes);
-
-    // return the mantained index to its rightfull location
-    shuffledArray[shuffledArray.indexOf(indexToMaintain)] = shuffledArray[indexToMaintain];
-    shuffledArray[indexToMaintain] = indexToMaintain;
-
-    return shuffledArray;
-}
-
-webPlayer.init = function() {};
-
-webPlayer.playlistLoaded = function() {
-    return webPlayer.playlist.length != 0;
-};
-
-webPlayer.getCode = function(functionName) {
-    return webPlayer.codeKeyRelation[webPlayer.keyFunctionRelation[functionName]];
-};
-
-webPlayer.preventIfNeeded = function(keyFunctionName, eventNow) {
-    if (webPlayer.codeKeyPrevention.indexOf(webPlayer.keyFunctionRelation[keyFunctionName]) > -1)
-        eventNow.preventDefault();
-};
-
-webPlayer.playPause = function() {
-    if (!webPlayer.playlistLoaded()) return;
-    if (webPlayer.audioTagDOM.paused) webPlayer.audioTagDOM.play();
-    else webPlayer.audioTagDOM.pause();
-};
-
-webPlayer.changePercentTime = function(newPercentage) {
-    if (!webPlayer.playlistLoaded()) return;
-
-    // get the new time from percentage
-    let timeNew = (newPercentage / 100) * webPlayer.audioTagDOM.duration;
-
-    // set the net current time
-    webPlayer.audioTagDOM.currentTime = timeNew;
-};
-
-webPlayer.changeTime = function(changeOffset) {
-    if (!webPlayer.playlistLoaded()) return;
-    webPlayer.audioTagDOM.currentTime += changeOffset;
-};
-
-webPlayer.updateList = function(namePathCoupleList) {
-    webPlayer.playlist = namePathCoupleList;
-};
-
-webPlayer.consumeQueue = async function() {
-    webPlayer.audioTagDOM.src = webPlayer.srcChangeQueue.pop();
-    webPlayer.srcChangeQueue = [];
-    webPlayer.musicChangedCallback();
-    webPlayer.audioTagDOM.play();
-};
-
-webPlayer.consumeQueueIfTimed = function() {
-    if (webPlayer.srcLastConsumed === null || (Date.now() >= webPlayer.srcLastConsumed + webPlayer.srcConsimungInterval)) {
-        webPlayer.consumeQueue();
-        webPlayer.srcLastConsumed = Date.now();
-        return true;
-    } else return false;
-};
-
-webPlayer.updateAndConsumeQueue = function(filePath) {
-    webPlayer.srcChangeQueue.push(filePath);
-    if (!webPlayer.consumeQueueIfTimed()) setTimeout(() => {
-        if (webPlayer.srcChangeQueue.length > 0)
-            webPlayer.consumeQueueIfTimed();
-    }, webPlayer.srcConsimungInterval);
-};
-
-webPlayer.playAudio = function(filePath) {
-    webPlayer.updateAndConsumeQueue(filePath);
-};
-
-webPlayer.playIndex = function() {
-    // check if shuffle is on
-    let indexToPlay = (webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle] == "on") ?
-        webPlayer.playlistShuffledIndexes[webPlayer.playingIndex]: webPlayer.playingIndex;
-
-    webPlayer.playingName = webPlayer.playlist[indexToPlay][0];
-    webPlayer.playAudio(webPlayer.playlist[indexToPlay][1]);
-};
-
-webPlayer.next = function(respectRepeat = false) {
-    if (!webPlayer.playlistLoaded()) return;
-
-    let newIndex = 0;
-    let respectedCase = respectRepeat ?
-        webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat] :
-        "repeatAll";
-
-    switch (respectedCase) {
-        case "off":
-            newIndex = webPlayer.playingIndex + 1;
-            if (newIndex >= webPlayer.playlist.length) newIndex = 0;
-            else {
-                webPlayer.playingIndex = newIndex;
-                webPlayer.playIndex();
+        keyPress: function(keypressEvent) {
+            switch (keypressEvent.which) {
+                case getCode("playpause"):
+                    preventIfNeeded("playpause", keypressEvent);
+                    playPause();
+                    break;
+                case getCode("next"):
+                    preventIfNeeded("next", keypressEvent);
+                    change(1);
+                    break;
+                case getCode("previous"):
+                    preventIfNeeded("previous", keypressEvent);
+                    change(-1);
+                    break;
+                case getCode("forward10"):
+                    preventIfNeeded("forward10", keypressEvent);
+                    changeTime(10);
+                    break;
+                case getCode("rewind10"):
+                    preventIfNeeded("rewind10", keypressEvent);
+                    changeTime(-10);
+                    break;
+                case getCode("forward5"):
+                    preventIfNeeded("forward5", keypressEvent);
+                    changeTime(5);
+                    break;
+                case getCode("rewind5"):
+                    preventIfNeeded("rewind5", keypressEvent);
+                    changeTime(-5);
+                    break;
+                case getCode("volumeup10"):
+                    preventIfNeeded("volumeup10", keypressEvent);
+                    changeVolume(10);
+                    updateVolume();
+                    break;
+                case getCode("volumedown10"):
+                    preventIfNeeded("volumedown10", keypressEvent);
+                    changeVolume(-10);
+                    updateVolume();
+                    break;
+                case getCode("set1"):
+                    preventIfNeeded("set1", keypressEvent);
+                    changePercentTime(10);
+                    break;
+                case getCode("set2"):
+                    preventIfNeeded("set2", keypressEvent);
+                    changePercentTime(20);
+                    break;
+                case getCode("set3"):
+                    preventIfNeeded("set3", keypressEvent);
+                    changePercentTime(30);
+                    break;
+                case getCode("set4"):
+                    preventIfNeeded("set4", keypressEvent);
+                    changePercentTime(40);
+                    break;
+                case getCode("set5"):
+                    preventIfNeeded("set5", keypressEvent);
+                    changePercentTime(50);
+                    break;
+                case getCode("set6"):
+                    preventIfNeeded("set6", keypressEvent);
+                    changePercentTime(60);
+                    break;
+                case getCode("set7"):
+                    preventIfNeeded("set7", keypressEvent);
+                    changePercentTime(70);
+                    break;
+                case getCode("set8"):
+                    preventIfNeeded("set8", keypressEvent);
+                    changePercentTime(80);
+                    break;
+                case getCode("set9"):
+                    preventIfNeeded("set9", keypressEvent);
+                    changePercentTime(90);
+                    break;
+                case getCode("set0"):
+                    preventIfNeeded("set0", keypressEvent);
+                    changePercentTime(0);
+                    break;
             }
-            break;
-        case "repeatAll":
-            newIndex = webPlayer.playingIndex + 1;
-            if (newIndex >= webPlayer.playlist.length) newIndex = 0;
-            webPlayer.playingIndex = newIndex;
-            webPlayer.playIndex();
-            break;
-        case "repeatOne":
-            webPlayer.playIndex();
-            break;
-        default:
+        }
+    };
+
+    /****************************
+     * Callbacks to the outside *
+     ****************************/
+
+    // functions that will be called when a specific local event happens
+    var changeCallbacks = {
+        // callback when the music source is changed
+        music: utils.misc.empty,
+        // callback for when a icon is changed
+        icon: utils.misc.empty,
+        // music progress and volume changed callback
+        // for progress bars
+        musicProgress: utils.misc.empty,
+        musicVolume: utils.misc.empty,
+        // shuffle and repeat callback
+        shuffle: utils.misc.empty,
+        repeat: utils.misc.empty
     }
 
-};
+    /*********************************************
+     * Data that will be available to the module *
+     *********************************************/
 
-webPlayer.previous = function(respectRepeat) {
-    if (!webPlayer.playlistLoaded()) return;
+    // public stuff to be returned
+    var publicReturn = {
 
-    if (webPlayer.audioTagDOM.currentTime > webPlayer.previousResetSongTime) {
-        webPlayer.audioTagDOM.currentTime = 0;
-        return;
-    }
+        // init function that must be run from browser
+        initFromBrowser: function(audioDOM, callbackFunctionsObject) {
 
-    let newIndex = 0;
-    let respectedCase = respectRepeat ?
-        webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat] :
-        "repeatAll";
+            // get the main audio tag dom from page
+            audioTagDOM = audioDOM;
 
-    switch (respectedCase) {
-        case "off":
-            newIndex = webPlayer.playingIndex - 1;
-            if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
-            else {
-                webPlayer.playingIndex = newIndex;
-                webPlayer.playIndex();
-            }
-            break;
-        case "repeatAll":
-            newIndex = webPlayer.playingIndex - 1;
-            if (newIndex < 0) newIndex = webPlayer.playlist.length - 1;
-            webPlayer.playingIndex = newIndex;
-            webPlayer.playIndex();
-            break;
-        case "repeatOne":
-            webPlayer.playIndex();
-            break;
-        default:
-    }
+            // assing all specific callbacks
+            // the input object must match the change callbacks in keys to be assigned
+            let changeCallbacksKeys = Object.keys(changeCallbacks);
+            for (let i = 0; i < changeCallbacksKeys.length; ++i)
+                changeCallbacks[changeCallbacksKeys[i]] = callbackFunctionsObject[changeCallbacksKeys[i]];
 
-};
+            // add the local listeneds to the freshly acquired dom
+            addAudioTagListeners();
 
-webPlayer.getSourceNow = function() {
-    return webPlayer.audioTagDOM.src;
-};
+            // return the functions for button presses
+            return externalEvents;
 
-webPlayer.audioEnded = function() {
-    webPlayer.next(true);
-};
+        },
 
-webPlayer.timeUpdate = function() {
-    webPlayer.durationChange();
-};
+        // few mirror var fns
+        getVar: {
+            source: function() { return audioTagDOM.src; },
+            paused: function() { return audioTagDOM.paused; },
+            name:   function() { return player.name; }
+        },
 
-webPlayer.bufferUpdate = function() {
-    webPlayer.durationChange();
-};
+        // available functions
+        updateListPlay: function() { updateListPlay.apply(null, arguments) },
+        changePercentTime: function() { changePercentTime.apply(null, arguments) },
+        setExactVolume: function(exactPercentage) {
+            setExactVolume(exactPercentage);
+            updateVolume();
+        },
 
-webPlayer.durationChange = function() {
+    };
 
-    // initialize some flags and vars
-    let bufferEnd = 0, duration = 1;
-    let lastOfTimeRanges = webPlayer.audioTagDOM.buffered.length - 1;
+    return publicReturn;
 
-    // if there is a time range set it
-    if (lastOfTimeRanges >= 0)
-        bufferEnd = webPlayer.audioTagDOM.buffered.end(lastOfTimeRanges);
-
-    // if there is a duration set it
-    if (webPlayer.audioTagDOM.duration)
-        duration = webPlayer.audioTagDOM.duration;
-
-    webPlayer.musicProgressChangeCallback(
-        webPlayer.audioTagDOM.currentTime,
-        duration,
-        bufferEnd
-    );
-
-};
-
-webPlayer.playPauseEvent = function() {
-    webPlayer.iconChangeCallback("playpause");
-};
-
-webPlayer.addAudioTagListeners = function() {
-    webPlayer.audioTagDOM.onended = webPlayer.audioEnded;
-    webPlayer.audioTagDOM.ontimeupdate = webPlayer.timeUpdate;
-    webPlayer.audioTagDOM.onprogress = webPlayer.downloadingData;
-    webPlayer.audioTagDOM.onpause = webPlayer.playPauseEvent;
-    webPlayer.audioTagDOM.onplay = webPlayer.playPauseEvent;
-};
-
-webPlayer.updateListPlay = function(namePathCoupleList, songName) {
-
-    // update the local list
-    webPlayer.updateList(namePathCoupleList);
-
-    // extract the list of names
-    let nameList = extractIndexFromBidimensionalArray(namePathCoupleList, 0);
-
-    // play it with index
-    webPlayer.playingIndex = nameList.indexOf(songName);
-
-    // check if it is needed to shuffle the indexes
-    webPlayer.createShuffledPlaylistIfNeeded(webPlayer.playingIndex);
-
-    webPlayer.playIndex();
-};
-
-webPlayer.changeVolume = function(changeOffset) {
-    webPlayer.volume += changeOffset;
-    // check the overflows
-    if (webPlayer.volume > 100) webPlayer.volume = 100;
-    else if (webPlayer.volume < 0) webPlayer.volume = 0;
-};
-
-webPlayer.setExactVolume = function(newVolume) {
-    webPlayer.volume = newVolume;
-    // check the overflows
-    if (webPlayer.volume > 100) webPlayer.volume = 100;
-    else if (webPlayer.volume < 0) webPlayer.volume = 0;
-};
-
-webPlayer.updateVolume = function() {
-    webPlayer.audioTagDOM.volume = (webPlayer.volume / 100);
-    webPlayer.musicVolumeChangeCallback(webPlayer.volume, 100);
-};
-
-webPlayer.createShuffledPlaylistIfNeeded = function(saveIndex, buttonClick = false) {
-    if (webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle] == "on")
-        webPlayer.playlistShuffledIndexes = shuffleIndex(webPlayer.playlist.length, saveIndex);
-    else if (buttonClick && webPlayer.playlistShuffledIndexes.length > 0) {
-        // normalize the index if changed before
-        webPlayer.playingIndex = webPlayer.playlistShuffledIndexes[webPlayer.playingIndex];
-    }
-};
-
-webPlayer.rotateState = function(stateName) {
-    // get the maximum number of states
-    let maxStates = webPlayer.playerStatesPossibilities[stateName].length;
-
-    // rotation always 1 up
-    webPlayer.playerStates[stateName] += 1
-
-    // check for overflow and rotate it
-    if (webPlayer.playerStates[stateName] >= maxStates)
-        webPlayer.playerStates[stateName] = 0;
-};
-
-webPlayer.buttonPressShuffle = function() {
-    webPlayer.rotateState("shuffle");
-    webPlayer.createShuffledPlaylistIfNeeded(webPlayer.playingIndex, true);
-    webPlayer.shuffleChangeCallback(webPlayer.playerStatesPossibilities.shuffle[webPlayer.playerStates.shuffle]);
-};
-
-webPlayer.buttonPressRepeat = function() {
-    webPlayer.rotateState("repeat");
-    webPlayer.repeatChangeCallback(webPlayer.playerStatesPossibilities.repeat[webPlayer.playerStates.repeat]);
-};
-
-webPlayer.buttonPressPlayPause = function() {
-    webPlayer.playPause();
-};
-
-webPlayer.buttonPressPrevious = function() {
-    webPlayer.previous();
-};
-
-webPlayer.buttonPressNext = function() {
-    webPlayer.next();
-};
-
-webPlayer.buttonPressVolume = function() {
-    if (webPlayer.volume != 0) {
-        webPlayer.volumeLastState = webPlayer.volume;
-        webPlayer.volume = 0;
-        webPlayer.updateVolume();
-    } else if (webPlayer.volumeLastState != null) {
-        webPlayer.volume = webPlayer.volumeLastState;
-        webPlayer.volumeLastState = null;
-        webPlayer.updateVolume();
-    }
-}
-
-webPlayer.keyPressFunction = function(keypressEvent) {
-    switch (keypressEvent.which) {
-        case webPlayer.getCode("playpause"):
-            webPlayer.preventIfNeeded("playpause", keypressEvent);
-            webPlayer.playPause();
-            break;
-        case webPlayer.getCode("next"):
-            webPlayer.preventIfNeeded("next", keypressEvent);
-            webPlayer.next();
-            break;
-        case webPlayer.getCode("previous"):
-            webPlayer.preventIfNeeded("previous", keypressEvent);
-            webPlayer.previous();
-            break;
-        case webPlayer.getCode("forward10"):
-            webPlayer.preventIfNeeded("forward10", keypressEvent);
-            webPlayer.changeTime(10);
-            break;
-        case webPlayer.getCode("rewind10"):
-            webPlayer.preventIfNeeded("rewind10", keypressEvent);
-            webPlayer.changeTime(-10);
-            break;
-        case webPlayer.getCode("forward5"):
-            webPlayer.preventIfNeeded("forward5", keypressEvent);
-            webPlayer.changeTime(5);
-            break;
-        case webPlayer.getCode("rewind5"):
-            webPlayer.preventIfNeeded("rewind5", keypressEvent);
-            webPlayer.changeTime(-5);
-            break;
-        case webPlayer.getCode("volumeup10"):
-            webPlayer.preventIfNeeded("volumeup10", keypressEvent);
-            webPlayer.changeVolume(10);
-            webPlayer.updateVolume();
-            break;
-        case webPlayer.getCode("volumedown10"):
-            webPlayer.preventIfNeeded("volumedown10", keypressEvent);
-            webPlayer.changeVolume(-10);
-            webPlayer.updateVolume();
-            break;
-        case webPlayer.getCode("set1"):
-            webPlayer.preventIfNeeded("set1", keypressEvent);
-            webPlayer.changePercentTime(10);
-            break;
-        case webPlayer.getCode("set2"):
-            webPlayer.preventIfNeeded("set2", keypressEvent);
-            webPlayer.changePercentTime(20);
-            break;
-        case webPlayer.getCode("set3"):
-            webPlayer.preventIfNeeded("set3", keypressEvent);
-            webPlayer.changePercentTime(30);
-            break;
-        case webPlayer.getCode("set4"):
-            webPlayer.preventIfNeeded("set4", keypressEvent);
-            webPlayer.changePercentTime(40);
-            break;
-        case webPlayer.getCode("set5"):
-            webPlayer.preventIfNeeded("set5", keypressEvent);
-            webPlayer.changePercentTime(50);
-            break;
-        case webPlayer.getCode("set6"):
-            webPlayer.preventIfNeeded("set6", keypressEvent);
-            webPlayer.changePercentTime(60);
-            break;
-        case webPlayer.getCode("set7"):
-            webPlayer.preventIfNeeded("set7", keypressEvent);
-            webPlayer.changePercentTime(70);
-            break;
-        case webPlayer.getCode("set8"):
-            webPlayer.preventIfNeeded("set8", keypressEvent);
-            webPlayer.changePercentTime(80);
-            break;
-        case webPlayer.getCode("set9"):
-            webPlayer.preventIfNeeded("set9", keypressEvent);
-            webPlayer.changePercentTime(90);
-            break;
-        case webPlayer.getCode("set0"):
-            webPlayer.preventIfNeeded("set0", keypressEvent);
-            webPlayer.changePercentTime(0);
-            break;
-        default:
-    }
-};
-
-/******************
- * Initialization *
- ******************/
-
-webPlayer.init();
+}());

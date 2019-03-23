@@ -315,10 +315,10 @@ function returnPathListing() {
 function updateChangeSong() {
 
     // update the title
-    $("title").html(webPlayer.playingName);
+    $("title").html(webPlayer.getVar.name());
 
     // update the player text
-    $(audioTextTag).html(webPlayer.playingName);
+    $(audioTextTag).html(webPlayer.getVar.name());
 
     // check the audio text overflow
     if (checkWidthOverflow(audioTextTag)) wrapInnerWithMarqueeOverflow($(audioTextTag), $(audioTextTag).width());
@@ -607,7 +607,8 @@ function clearVisualList() {
  **********************/
 
 function playPauseButtonUpdate() {
-    if (webPlayer.audioTagDOM.paused) $("#playpause").html(iconFontRelation["play"]);
+    console.log();
+    if (webPlayer.getVar.paused()) $("#playpause").html(iconFontRelation["play"]);
     else $("#playpause").html(iconFontRelation["pause"]);
 }
 
@@ -770,7 +771,6 @@ function volumeBarClicked() {
 
     // set the volume and update
     webPlayer.setExactVolume(valueNowPercentage);
-    webPlayer.updateVolume();
 
 };
 
@@ -839,7 +839,7 @@ function downloadFileIconClicked() {
         return;
     }
 
-    let sourceNow = webPlayer.getSourceNow();
+    let sourceNow = webPlayer.getVar.source();
 
     // check if the source is valid
     if (sourceNow === "") {
@@ -858,7 +858,7 @@ function downloadFileIconClicked() {
         (response) => {
             isDownloading = false;
             closeDownloadBar();
-            saveAs(response, webPlayer.playingName);
+            saveAs(response, webPlayer.getVar.name());
         },
         () => {
             isDownloading = false;
@@ -1022,15 +1022,15 @@ window.onpopstate = () => {
     history.pushState({}, "");
 };
 
-function assignAudioPlayerButtonsToObject() {
+function assignAudioPlayerButtonsToObject(webPlayerCallbacks) {
 
     let buttonFunctionRelation = {
-        playpause: webPlayer.buttonPressPlayPause,
-        previous: webPlayer.buttonPressPrevious,
-        next: webPlayer.buttonPressNext,
-        shuffle: webPlayer.buttonPressShuffle,
-        repeat: webPlayer.buttonPressRepeat,
-        volume: webPlayer.buttonPressVolume
+        playpause: webPlayerCallbacks.playPause,
+        previous: webPlayerCallbacks.previous,
+        next: webPlayerCallbacks.next,
+        shuffle: webPlayerCallbacks.shuffle,
+        repeat: webPlayerCallbacks.repeat,
+        volume: webPlayerCallbacks.volume
     };
 
     // split the relation keys
@@ -1072,38 +1072,33 @@ $(document).ready(function(){
     // attach the click events to the icon bar
     assignIconBarClicks();
 
-    // attach the audio tag to the webplayer
-    webPlayer.audioTagDOM = $(mainAudioTag)[0];  // must be the real dom
-
-    // add the on music change local function callbacks
-    webPlayer.musicChangedCallback = updateChangeSong;
-    webPlayer.addAudioTagListeners();
-
-    // add local icon change callback
-    webPlayer.iconChangeCallback = updateButton;
-
-    // add music progress bar on change callback
-    webPlayer.musicProgressChangeCallback = musicProgressBarUpdate;
-    webPlayer.musicVolumeChangeCallback = musicVolumeUpdate;
-
-    // add the shuffle and repeat buttons callback
-    webPlayer.shuffleChangeCallback = shuffleButtonUpdate;
-    webPlayer.repeatChangeCallback = repeatButtonUpdate;
-
     // add onclick events for the progress bar
     $(audioProgressBarParentTag).click(clickedProgressBar);
 
-    // add click events for the dragable volume bar
-    initializeRange(volumeProgressBarTag);
-    $(volumeProgressBarTag).on("input", volumeBarClicked);
+    // web player init
+    let webPlayerCallbacks = webPlayer.initFromBrowser(
+        $(mainAudioTag)[0],
+        {
+            music: updateChangeSong,
+            icon: updateButton,
+            musicProgress: musicProgressBarUpdate,
+            musicVolume: musicVolumeUpdate,
+            shuffle: shuffleButtonUpdate,
+            repeat: repeatButtonUpdate
+        }
+    );
 
     // attach the keypress callback to the webplayer
     $(document).keydown((event) => {
         onKeyPress(event);
-        webPlayer.keyPressFunction(event);
+        webPlayerCallbacks.keyPress(event);
     });
 
     // map all the audio buttons to the object functions
-    assignAudioPlayerButtonsToObject();
+    assignAudioPlayerButtonsToObject(webPlayerCallbacks);
+
+    // add click events for the dragable volume bar
+    initializeRange(volumeProgressBarTag);
+    $(volumeProgressBarTag).on("input", volumeBarClicked);
 
 });
