@@ -1,9 +1,10 @@
 "use strict";
 
-const headers = {
+const header = {
+    // audio player
     player: {
         // minimum time passed for reseting song instead of going to previous
-        previousResetSongTime: 10,  // in seconds
+        previousResetSongTime: 25,  // in seconds
 
         // iterval for consuming the change source queue
         srcConsimungInterval: 250,  // miliseconds

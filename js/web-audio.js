@@ -700,7 +700,7 @@ function clickedProgressBar(event) {
     let clickedPercentage = horizontalClickPosition / $(this).width() * 100;
 
     // set the volume and update
-    webPlayer.setExactTimePercentage(clickedPercentage);
+    webPlayer.control.timeSet(clickedPercentage);
 };
 
 /****************
@@ -780,35 +780,10 @@ function volumeBarClicked() {
     let valueNowPercentage = translateRangeToPercentage($(volumeProgressBarTag).val());
 
     // set the volume and update
-    webPlayer.setExactVolumePercentage(valueNowPercentage);
+    webPlayer.control.volumeSet(valueNowPercentage);
 
 };
 
-/***************
- * Key presses *
- ***************/
-
-const keyRelation = {
-    codeKeyRelation: {
-        r: 82
-    },
-    keyFunctionRelation: {
-        return: "r"
-    }
-};
-
-function getKeyCode(functionName) {
-    return keyRelation.codeKeyRelation[keyRelation.keyFunctionRelation[functionName]];
-};
-
-function onKeyPress(keypressEvent) {
-    switch (keypressEvent.which) {
-        case getKeyCode("return"):
-            returnButton();
-            break;
-        default:
-    }
-};
 
 /****************
  * Download bar *
@@ -1032,15 +1007,15 @@ window.onpopstate = () => {
     history.pushState({}, "");
 };
 
-function assignAudioPlayerButtonsToObject(webPlayerCallbacks) {
+function assignAudioPlayerButtonsToObject() {
 
     let buttonFunctionRelation = {
-        playpause: webPlayerCallbacks.playPause,
-        previous: webPlayerCallbacks.previous,
-        next: webPlayerCallbacks.next,
-        shuffle: webPlayerCallbacks.shuffle,
-        repeat: webPlayerCallbacks.repeat,
-        volume: webPlayerCallbacks.volume
+        playpause: function() { webPlayer.control.playPause(); },
+        previous:  function() { webPlayer.control.trackOffset(-1); },
+        next:      function() { webPlayer.control.trackOffset(1); },
+        shuffle:   function() { webPlayer.control.shuffle(); },
+        repeat:    function() { webPlayer.control.repeat(); },
+        volume:    function() { webPlayer.control.volumeFreeze(); }
     };
 
     // split the relation keys
@@ -1086,7 +1061,7 @@ $(document).ready(function(){
     $(audioProgressBarParentTag).click(clickedProgressBar);
 
     // web player init
-    let webPlayerCallbacks = webPlayer.initFromBrowser(
+    webPlayer.initFromBrowser(
         $(mainAudioTag)[0],
         {
             music: updateChangeSong,
@@ -1097,15 +1072,11 @@ $(document).ready(function(){
             repeat: repeatButtonUpdate
         }
     );
+    // map all the audio buttons to the object functions
+    assignAudioPlayerButtonsToObject();
 
     // attach the keypress callback to the webplayer
-    $(document).keydown((event) => {
-        onKeyPress(event);
-        webPlayerCallbacks.keyPress(event);
-    });
-
-    // map all the audio buttons to the object functions
-    assignAudioPlayerButtonsToObject(webPlayerCallbacks);
+    $(document).keydown(localKeys.keypressEventCall);
 
     // add click events for the dragable volume bar
     initializeRange(volumeProgressBarTag);
